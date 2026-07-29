@@ -5,6 +5,14 @@ All notable changes to **Build 49 (Qwik E-Commerce Product Page)** will be docum
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.0] - 2026-07-29
+
+### Added
+- Integrated **Qwik Persistent Cart LocalStorage Syncer & Multi-Currency Switcher** in `src/services/productService.ts` and `src/routes/index.tsx`.
+- Added currency exchange rates (`CURRENCIES`: USD, EUR, GBP, JPY) and conversion logic (`convertCurrency`).
+- Added Multi-Currency Switcher dropdown to navbar and Qwik `useVisibleTask$` LocalStorage syncer (`nexus_cart_build49`, `nexus_currency_build49`).
+- Updated unit tests in `src/services/productService.spec.ts` (9 passing unit tests).
+
 ## [0.4.0] - 2026-07-29
 
 ### Added

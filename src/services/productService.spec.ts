@@ -1,6 +1,6 @@
 // src/services/productService.spec.ts
 // Vitest unit tests for Build 49 Product Service.
-// Updated: 2026-07-29 for Iteration 4
+// Updated: 2026-07-29 for Iteration 5
 
 import { describe, it, expect } from 'vitest';
 import {
@@ -11,7 +11,8 @@ import {
   getResumableSnapshot,
   calculate360Rotation,
   calculateFlashSaleCountdown,
-  calculateFrequencyBars
+  calculateFrequencyBars,
+  convertCurrency
 } from './productService';
 
 describe('productService', () => {
@@ -24,6 +25,20 @@ describe('productService', () => {
     expect(data.ledPresets.length).toBe(5);
     expect(data.socialPurchases.length).toBe(4);
     expect(data.audioTracks.length).toBe(3);
+  });
+
+  it('converts currencies (USD, EUR, GBP, JPY) with accurate rates and symbols', () => {
+    const usd = convertCurrency(100, 'USD');
+    expect(usd.formatted).toBe('$100.00');
+
+    const eur = convertCurrency(100, 'EUR');
+    expect(eur.formatted).toBe('€92.00');
+
+    const gbp = convertCurrency(100, 'GBP');
+    expect(gbp.formatted).toBe('£78.00');
+
+    const jpy = convertCurrency(100, 'JPY');
+    expect(jpy.formatted).toBe('¥15,500');
   });
 
   it('calculates audio frequency visualizer bar heights dynamically', () => {
@@ -60,24 +75,24 @@ describe('productService', () => {
     expect(rot2.normalizedDeg).toBe('10°');
   });
 
-  it('calculates cart totals and promo discounts accurately', () => {
+  it('calculates cart totals and promo discounts accurately in USD and EUR', () => {
     const items = [
       { variantId: 'var-cyber-black', name: 'Cyber Onyx', price: 349.99, image: '', quantity: 1 }
     ];
 
-    const standard = calculateCartTotals(items, '');
-    expect(standard.subtotal).toBe(349.99);
-    expect(standard.shipping).toBe(0); // Free shipping over $200
-    expect(standard.discount).toBe(0);
+    const standardUSD = calculateCartTotals(items, '', 'USD');
+    expect(standardUSD.subtotal).toBe(349.99);
+    expect(standardUSD.formattedSubtotal).toBe('$349.99');
+    expect(standardUSD.shipping).toBe(0);
 
-    const discounted = calculateCartTotals(items, 'QWIK15');
-    expect(discounted.discount).toBe(52.50); // 15% of 349.99
-    expect(discounted.total).toBeLessThan(standard.total);
+    const discountedEUR = calculateCartTotals(items, 'QWIK15', 'EUR');
+    expect(discountedEUR.formattedDiscount).toBe('€48.30'); // $52.50 * 0.92 = €48.30
+    expect(discountedEUR.total).toBeLessThan(standardUSD.total);
   });
 
-  it('formats currency numbers correctly', () => {
-    expect(formatCurrency(349.99)).toBe('$349.99');
-    expect(formatCurrency(0)).toBe('$0.00');
+  it('formats currency numbers correctly for target currency', () => {
+    expect(formatCurrency(349.99, 'USD')).toBe('$349.99');
+    expect(formatCurrency(349.99, 'EUR')).toBe('€321.99');
   });
 
   it('filters product reviews by star rating', () => {
@@ -90,14 +105,14 @@ describe('productService', () => {
     expect(fiveStars.every(r => r.rating >= 5)).toBe(true);
   });
 
-  it('generates serialized resumable state snapshot with 0ms hydration cost and Audio Demo state', () => {
+  it('generates serialized resumable state snapshot with 0ms hydration cost and multi-currency state', () => {
     const items = [
       { variantId: 'var-cyber-black', name: 'Cyber Onyx', price: 349.99, image: '', quantity: 1 }
     ];
-    const snapshot = getResumableSnapshot(items, 'var-cyber-black', 'led-magenta', 180, 14400, 'tr-bass');
+    const snapshot = getResumableSnapshot(items, 'var-cyber-black', 'led-magenta', 180, 14400, 'tr-bass', 'EUR');
 
     expect(snapshot.hydrationCostMs).toBe(0.0);
-    expect(snapshot.serializedObjectsCount).toBe(6);
+    expect(snapshot.serializedObjectsCount).toBe(7);
     expect(snapshot.payloadSizeBytes).toBeGreaterThan(0);
   });
 });

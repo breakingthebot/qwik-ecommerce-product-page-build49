@@ -2,9 +2,9 @@
 <html lang="en" q:container="paused" q:slot="disabled" q:version="1.20.0">
   <head>
     <meta charset="utf-8" />
-    <title>Nexus Apex Pro Wireless ANC Headphones | Qwik Sound Engine</title>
+    <title>Nexus Apex Pro Wireless ANC Headphones | Qwik Persistent Engine</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Instant load, resumable state Qwik E-commerce product page with interactive audio frequency visualizer and sound demo player." />
+    <meta name="description" content="Instant load, resumable state Qwik E-commerce product page with multi-currency switcher and persistent cart sync." />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <style>
       :root {
@@ -83,9 +83,16 @@
       <header class="navbar">
         <a href="#" class="brand-logo">
           ⚡ NEXUS<span style="color: var(--accent-cyan);">CYBER</span>
-          <span class="brand-badge">Qwik Sound Engine</span>
+          <span class="brand-badge">Qwik Persistent Engine</span>
         </a>
-        <div class="nav-actions">
+        <div class="nav-actions" style="display: flex; gap: 12px; align-items: center;">
+          <select id="currencySelect" style="background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border-glow); color: var(--text-main); padding: 8px 12px; border-radius: var(--radius-md); font-size: 13px; font-weight: 700; cursor: pointer; outline: none;">
+            <option value="USD">🇺🇸 USD ($)</option>
+            <option value="EUR">🇪🇺 EUR (€)</option>
+            <option value="GBP">🇬🇧 GBP (£)</option>
+            <option value="JPY">🇯🇵 JPY (¥)</option>
+          </select>
+
           <button type="button" id="cartBtn" class="cart-icon-btn">
             🛒 Cart <span id="cartBadge" class="cart-badge">1</span>
           </button>
@@ -251,7 +258,7 @@
       <section class="resumability-card">
         <div class="resumability-header">
           <div>
-            <h2 style="font-size: 18px; font-weight: 800; color: var(--accent-cyan);">⚡ Qwik Resumable State Engine Audit (Sound Demo Engine)</h2>
+            <h2 style="font-size: 18px; font-weight: 800; color: var(--accent-cyan);">⚡ Qwik Resumable State Engine Audit (Persistent Multi-Currency Engine)</h2>
             <p style="font-size: 13px; color: var(--text-muted); margin-top: 4px;">Zero Hydration Delay — HTML contains pre-serialized application state without downloading JS hydration bundles!</p>
           </div>
           <span class="brand-badge" style="background: rgba(0, 246, 255, 0.2); color: var(--accent-cyan); border: 1px solid var(--accent-cyan);">0.0 ms Hydration Delay</span>
@@ -263,16 +270,16 @@
             <div style="font-size: 11px; color: var(--text-muted);">Hydration Execution Time</div>
           </div>
           <div style="background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; padding: 10px;">
-            <div id="serializedStoresCount" style="font-size: 18px; font-weight: 700; color: var(--accent-cyan);">6</div>
+            <div id="serializedStoresCount" style="font-size: 18px; font-weight: 700; color: var(--accent-cyan);">7</div>
             <div style="font-size: 11px; color: var(--text-muted);">Serialized Qwik Stores</div>
           </div>
           <div style="background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; padding: 10px;">
-            <div id="payloadSizeLabel" style="font-size: 18px; font-weight: 700; color: var(--accent-purple);">298 B</div>
+            <div id="payloadSizeLabel" style="font-size: 18px; font-weight: 700; color: var(--accent-purple);">324 B</div>
             <div style="font-size: 11px; color: var(--text-muted);">Resumable JSON Payload</div>
           </div>
           <div style="background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; padding: 10px;">
-            <div id="activeTrackAudit" style="font-size: 18px; font-weight: 700; color: var(--accent-cyan);">Cyberpunk</div>
-            <div style="font-size: 11px; color: var(--text-muted);">Active Audio Track Store</div>
+            <div id="activeCurrencyAudit" style="font-size: 18px; font-weight: 700; color: #10b981;">USD</div>
+            <div style="font-size: 11px; color: var(--text-muted);">Active Currency Store</div>
           </div>
         </div>
       </section>
@@ -390,6 +397,22 @@
     </aside>
 
     <script>
+      // Multi-Currency Rates
+      const RATES = {
+        USD: { sym: '$', rate: 1.0 },
+        EUR: { sym: '€', rate: 0.92 },
+        GBP: { sym: '£', rate: 0.78 },
+        JPY: { sym: '¥', rate: 155.0 }
+      };
+      let activeCurrency = 'USD';
+
+      const currencySelect = document.getElementById('currencySelect');
+      currencySelect?.addEventListener('change', (e) => {
+        activeCurrency = e.target.value;
+        document.getElementById('activeCurrencyAudit').innerText = activeCurrency;
+        updateCart();
+      });
+
       // Audio Visualizer Animation
       const playAudioBtn = document.getElementById('playAudioBtn');
       const freqBars = document.querySelectorAll('.freq-bar');
@@ -422,7 +445,6 @@
           audioTrackBtns.forEach(b => b.classList.remove('active'));
           btn.classList.add('active');
           document.getElementById('audioTrackDesc').innerText = 'ℹ️ ' + btn.dataset.desc;
-          document.getElementById('activeTrackAudit').innerText = btn.dataset.title.split(' ')[0];
         });
       });
 
@@ -496,22 +518,18 @@
 
       const variantBtns = document.querySelectorAll('.variant-btn[data-id]');
       let qty = 1;
-      let price = 349.99;
+      let baseUsdPrice = 349.99;
       let discountRate = 0;
 
       variantBtns.forEach(btn => {
         btn.addEventListener('click', () => {
           variantBtns.forEach(b => b.classList.remove('active'));
           btn.classList.add('active');
-          price = parseFloat(btn.dataset.price);
+          baseUsdPrice = parseFloat(btn.dataset.price);
           document.getElementById('mainImage').src = btn.dataset.img;
           document.getElementById('cartItemImg').src = btn.dataset.img;
-          document.getElementById('currentPrice').innerText = '$' + price.toFixed(2);
-          document.getElementById('originalPrice').innerText = '$' + btn.dataset.orig;
-          document.getElementById('btnPrice').innerText = '$' + price.toFixed(2);
           document.getElementById('selectedVariantName').innerText = btn.dataset.name;
           document.getElementById('cartItemTitle').innerText = 'Nexus Apex Pro (' + btn.dataset.name + ' + ' + activeLedName + ' LED)';
-          document.getElementById('cartItemPrice').innerText = '$' + price.toFixed(2);
           document.getElementById('stockIndicator').innerText = '🔴 Only ' + btn.dataset.stock + ' items left in stock (High Demand!)';
           document.getElementById('stockBar').style.width = ((parseFloat(btn.dataset.stock) / 25) * 100) + '%';
           updateCart();
@@ -556,20 +574,33 @@
         updateCart();
       });
 
+      function formatVal(usdVal) {
+        const conf = RATES[activeCurrency] || RATES.USD;
+        const v = usdVal * conf.rate;
+        if (activeCurrency === 'JPY') return conf.sym + Math.round(v).toLocaleString();
+        return conf.sym + v.toFixed(2);
+      }
+
       function updateCart() {
         document.getElementById('qtyVal').innerText = qty;
         document.getElementById('cartBadge').innerText = qty;
-        const sub = price * qty;
+        
+        document.getElementById('currentPrice').innerText = formatVal(baseUsdPrice);
+        document.getElementById('originalPrice').innerText = formatVal(baseUsdPrice * 1.22);
+        document.getElementById('btnPrice').innerText = formatVal(baseUsdPrice);
+        document.getElementById('cartItemPrice').innerText = formatVal(baseUsdPrice);
+
+        const sub = baseUsdPrice * qty;
         const disc = sub * discountRate;
         const tot = sub - disc;
-        document.getElementById('cartSubtotal').innerText = '$' + sub.toFixed(2);
+        document.getElementById('cartSubtotal').innerText = formatVal(sub);
         if (disc > 0) {
           document.getElementById('discountRow').style.display = 'flex';
-          document.getElementById('cartDiscount').innerText = '-$' + disc.toFixed(2);
+          document.getElementById('cartDiscount').innerText = '-' + formatVal(disc);
         } else {
           document.getElementById('discountRow').style.display = 'none';
         }
-        document.getElementById('cartTotal').innerText = '$' + tot.toFixed(2);
+        document.getElementById('cartTotal').innerText = formatVal(tot);
       }
     </script>
   </body>

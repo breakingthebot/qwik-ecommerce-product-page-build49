@@ -1,6 +1,6 @@
 // src/services/productService.ts
 // Business Logic & Product Engine for Build 49 - Qwik E-Commerce Product Page.
-// Updated: 2026-07-29 for Iteration 4 (Qwik Audio Frequency Visualizer & Sound Demo Player)
+// Updated: 2026-07-29 for Iteration 5 (Qwik Persistent Cart LocalStorage Syncer & Multi-Currency Switcher)
 
 export interface ProductVariant {
   id: string;
@@ -55,6 +55,21 @@ export interface AudioDemoTrack {
   waveformPeaks: number[];
   description: string;
 }
+
+export type CurrencyCode = 'USD' | 'EUR' | 'GBP' | 'JPY';
+
+export interface CurrencyConfig {
+  code: CurrencyCode;
+  symbol: string;
+  rate: number; // relative to USD
+}
+
+export const CURRENCIES: Record<CurrencyCode, CurrencyConfig> = {
+  USD: { code: 'USD', symbol: '$', rate: 1.0 },
+  EUR: { code: 'EUR', symbol: '€', rate: 0.92 },
+  GBP: { code: 'GBP', symbol: '£', rate: 0.78 },
+  JPY: { code: 'JPY', symbol: '¥', rate: 155.0 }
+};
 
 export interface ProductData {
   id: string;
@@ -205,6 +220,29 @@ export function getProductData(): ProductData {
 }
 
 /**
+ * Converts USD price to target currency code and formats symbol.
+ */
+export function convertCurrency(usdAmount: number, targetCurrency: CurrencyCode = 'USD'): {
+  convertedAmount: number;
+  formatted: string;
+} {
+  const config = CURRENCIES[targetCurrency] || CURRENCIES.USD;
+  const convertedAmount = usdAmount * config.rate;
+
+  let formatted = '';
+  if (targetCurrency === 'JPY') {
+    formatted = `${config.symbol}${Math.round(convertedAmount).toLocaleString()}`;
+  } else {
+    formatted = `${config.symbol}${convertedAmount.toFixed(2)}`;
+  }
+
+  return {
+    convertedAmount: Number(convertedAmount.toFixed(2)),
+    formatted
+  };
+}
+
+/**
  * Calculates audio frequency bar heights dynamically based on time and audio track peaks.
  */
 export function calculateFrequencyBars(peaks: number[], timeOffsetSec: number): number[] {
@@ -267,16 +305,20 @@ export function calculate360Rotation(currentAngle: number, deltaX: number, sensi
 }
 
 /**
- * Calculates cart totals including subtotal, tax, discounts, and final total.
+ * Calculates cart totals including subtotal, tax, discounts, and final total in target currency.
  */
-export function calculateCartTotals(cartItems: CartItem[], promoCode = ''): {
+export function calculateCartTotals(cartItems: CartItem[], promoCode = '', currency: CurrencyCode = 'USD'): {
   subtotal: number;
   discount: number;
   tax: number;
   shipping: number;
   total: number;
+  formattedSubtotal: string;
+  formattedDiscount: string;
+  formattedShipping: string;
+  formattedTotal: string;
 } {
-  const subtotal = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
+  const subtotalUSD = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
   let discountPercent = 0;
 
   if (promoCode.trim().toUpperCase() === 'QWIK15') {
@@ -285,29 +327,36 @@ export function calculateCartTotals(cartItems: CartItem[], promoCode = ''): {
     discountPercent = 0.20;
   }
 
-  const discount = subtotal * discountPercent;
-  const shipping = subtotal > 200 || subtotal === 0 ? 0 : 15.00;
-  const taxableAmount = Math.max(0, subtotal - discount);
-  const tax = taxableAmount * 0.08; // 8% sales tax
-  const total = taxableAmount + tax + shipping;
+  const discountUSD = subtotalUSD * discountPercent;
+  const shippingUSD = subtotalUSD > 200 || subtotalUSD === 0 ? 0 : 15.00;
+  const taxableAmount = Math.max(0, subtotalUSD - discountUSD);
+  const taxUSD = taxableAmount * 0.08; // 8% sales tax
+  const totalUSD = taxableAmount + taxUSD + shippingUSD;
+
+  const subtotal = convertCurrency(subtotalUSD, currency).convertedAmount;
+  const discount = convertCurrency(discountUSD, currency).convertedAmount;
+  const tax = convertCurrency(taxUSD, currency).convertedAmount;
+  const shipping = convertCurrency(shippingUSD, currency).convertedAmount;
+  const total = convertCurrency(totalUSD, currency).convertedAmount;
 
   return {
-    subtotal: Number(subtotal.toFixed(2)),
-    discount: Number(discount.toFixed(2)),
-    tax: Number(tax.toFixed(2)),
-    shipping: Number(shipping.toFixed(2)),
-    total: Number(total.toFixed(2))
+    subtotal,
+    discount,
+    tax,
+    shipping,
+    total,
+    formattedSubtotal: convertCurrency(subtotalUSD, currency).formatted,
+    formattedDiscount: convertCurrency(discountUSD, currency).formatted,
+    formattedShipping: shippingUSD === 0 ? 'FREE' : convertCurrency(shippingUSD, currency).formatted,
+    formattedTotal: convertCurrency(totalUSD, currency).formatted
   };
 }
 
 /**
  * Formats a numeric price to USD string.
  */
-export function formatCurrency(amount: number): string {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD'
-  }).format(amount);
+export function formatCurrency(amount: number, currency: CurrencyCode = 'USD'): string {
+  return convertCurrency(amount, currency).formatted;
 }
 
 /**
@@ -321,15 +370,15 @@ export function filterReviews(reviews: ProductReview[], minRating = 0): ProductR
 /**
  * Generates serialized resumable state metadata snapshot.
  */
-export function getResumableSnapshot(cartItems: CartItem[], selectedVariantId: string, ledColor = 'led-cyan', rotationAngle = 0, flashSaleSeconds = 14400, activeAudioTrack = 'tr-bass'): {
+export function getResumableSnapshot(cartItems: CartItem[], selectedVariantId: string, ledColor = 'led-cyan', rotationAngle = 0, flashSaleSeconds = 14400, activeAudioTrack = 'tr-bass', currency: CurrencyCode = 'USD'): {
   serializedObjectsCount: number;
   resumabilityKey: string;
   hydrationCostMs: number;
   payloadSizeBytes: number;
 } {
-  const payload = JSON.stringify({ cartItems, selectedVariantId, ledColor, rotationAngle, flashSaleSeconds, activeAudioTrack });
+  const payload = JSON.stringify({ cartItems, selectedVariantId, ledColor, rotationAngle, flashSaleSeconds, activeAudioTrack, currency });
   return {
-    serializedObjectsCount: cartItems.length + 5,
+    serializedObjectsCount: cartItems.length + 6,
     resumabilityKey: `qwik:store:${Date.now().toString(36)}`,
     hydrationCostMs: 0.0, // Qwik zero hydration delay
     payloadSizeBytes: new Blob([payload]).size

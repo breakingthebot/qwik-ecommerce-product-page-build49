@@ -9,6 +9,8 @@ import {
   calculate360Rotation,
   calculateFlashSaleCountdown,
   calculateFrequencyBars,
+  CURRENCIES,
+  type CurrencyCode,
   type CartItem
 } from '../services/productService';
 
@@ -19,6 +21,7 @@ export default component$(() => {
   const selectedVariantId = useSignal(product.variants[0].id);
   const selectedLedId = useSignal(product.ledPresets[0].id);
   const selectedAudioTrackId = useSignal(product.audioTracks[0].id);
+  const selectedCurrency = useSignal<CurrencyCode>('USD');
   const isAudioPlaying = useSignal<boolean>(false);
   const audioTimeOffset = useSignal<number>(0);
 
@@ -33,9 +36,42 @@ export default component$(() => {
   const promoCodeInput = useSignal('');
   const appliedPromo = useSignal('');
 
-  // Live Timer Task for Flash Sale, Audio Frequency Visualizer & Social Proof Toast Rotator
+  const cartStore = useStore<{ items: CartItem[] }>({
+    items: [
+      {
+        variantId: product.variants[0].id,
+        name: `${product.title} (${product.variants[0].name})`,
+        price: product.variants[0].price,
+        image: product.variants[0].image,
+        quantity: 1,
+        ledColor: product.ledPresets[0].name
+      }
+    ]
+  });
+
+  // LocalStorage Syncer & Live Timer Task
   // eslint-disable-next-line qwik/no-use-visible-task
-  useVisibleTask$(({ cleanup }) => {
+  useVisibleTask$(({ cleanup, track }) => {
+    track(() => cartStore.items);
+    track(() => selectedCurrency.value);
+
+    // Initial Load from LocalStorage
+    try {
+      const savedCart = localStorage.getItem('nexus_cart_build49');
+      const savedCurrency = localStorage.getItem('nexus_currency_build49');
+      if (savedCart) {
+        const parsed = JSON.parse(savedCart);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          cartStore.items = parsed;
+        }
+      }
+      if (savedCurrency && (savedCurrency in CURRENCIES)) {
+        selectedCurrency.value = savedCurrency as CurrencyCode;
+      }
+    } catch (e) {
+      // LocalStorage fallback
+    }
+
     const timer = setInterval(() => {
       if (flashSaleSeconds.value > 0) {
         flashSaleSeconds.value -= 1;
@@ -59,17 +95,17 @@ export default component$(() => {
     });
   });
 
-  const cartStore = useStore<{ items: CartItem[] }>({
-    items: [
-      {
-        variantId: product.variants[0].id,
-        name: `${product.title} (${product.variants[0].name})`,
-        price: product.variants[0].price,
-        image: product.variants[0].image,
-        quantity: 1,
-        ledColor: product.ledPresets[0].name
-      }
-    ]
+  // Sync state to LocalStorage on changes
+  // eslint-disable-next-line qwik/no-use-visible-task
+  useVisibleTask$(({ track }) => {
+    track(() => cartStore.items.length);
+    track(() => selectedCurrency.value);
+    try {
+      localStorage.setItem('nexus_cart_build49', JSON.stringify(cartStore.items));
+      localStorage.setItem('nexus_currency_build49', selectedCurrency.value);
+    } catch (e) {
+      // LocalStorage fallback
+    }
   });
 
   const selectedVariant = product.variants.find(v => v.id === selectedVariantId.value) || product.variants[0];
@@ -138,9 +174,9 @@ export default component$(() => {
     isDragging.value = false;
   });
 
-  const totals = calculateCartTotals(cartStore.items, appliedPromo.value);
+  const totals = calculateCartTotals(cartStore.items, appliedPromo.value, selectedCurrency.value);
   const filteredReviews = filterReviews(product.reviews, ratingFilter.value);
-  const snapshot = getResumableSnapshot(cartStore.items, selectedVariantId.value, selectedLedId.value, rotationAngle.value, flashSaleSeconds.value, selectedAudioTrackId.value);
+  const snapshot = getResumableSnapshot(cartStore.items, selectedVariantId.value, selectedLedId.value, rotationAngle.value, flashSaleSeconds.value, selectedAudioTrackId.value, selectedCurrency.value);
   const totalCartCount = cartStore.items.reduce((acc, item) => acc + item.quantity, 0);
 
   return (
@@ -158,9 +194,22 @@ export default component$(() => {
       <header class="navbar">
         <a href="#" class="brand-logo">
           ⚡ NEXUS<span style="color: var(--accent-cyan);">CYBER</span>
-          <span class="brand-badge">Qwik Sound Engine</span>
+          <span class="brand-badge">Qwik Persistent Engine</span>
         </a>
-        <div class="nav-actions">
+
+        <div class="nav-actions" style="display: flex; gap: 12px; align-items: center;">
+          {/* Multi-Currency Switcher */}
+          <select
+            value={selectedCurrency.value}
+            onChange$={$((e) => selectedCurrency.value = (e.target as HTMLSelectElement).value as CurrencyCode)}
+            style="background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border-glow); color: var(--text-main); padding: 8px 12px; border-radius: var(--radius-md); font-size: 13px; font-weight: 700; cursor: pointer; outline: none;"
+          >
+            <option value="USD">🇺🇸 USD ($)</option>
+            <option value="EUR">🇪🇺 EUR (€)</option>
+            <option value="GBP">🇬🇧 GBP (£)</option>
+            <option value="JPY">🇯🇵 JPY (¥)</option>
+          </select>
+
           <button
             type="button"
             class="cart-icon-btn"
@@ -253,8 +302,8 @@ export default component$(() => {
           </div>
 
           <div class="price-row">
-            <span class="current-price">{formatCurrency(selectedVariant.price)}</span>
-            <span class="original-price">{formatCurrency(selectedVariant.originalPrice)}</span>
+            <span class="current-price">{formatCurrency(selectedVariant.price, selectedCurrency.value)}</span>
+            <span class="original-price">{formatCurrency(selectedVariant.originalPrice, selectedCurrency.value)}</span>
             <span class="stock-indicator">
               🔴 Only {selectedVariant.stock} items left in stock (High Demand!)
             </span>
@@ -319,7 +368,7 @@ export default component$(() => {
               class="btn-primary"
               onClick$={addToCart$}
             >
-              🛒 Add to Resumable Cart ({formatCurrency(selectedVariant.price)})
+              🛒 Add to Resumable Cart ({formatCurrency(selectedVariant.price, selectedCurrency.value)})
             </button>
           </div>
         </div>
@@ -418,7 +467,7 @@ export default component$(() => {
         <div class="resumability-header">
           <div>
             <h2 style="font-size: 18px; font-weight: 800; color: var(--accent-cyan);">
-              ⚡ Qwik Resumable State Engine Audit (Sound Demo Engine)
+              ⚡ Qwik Resumable State Engine Audit (Persistent Multi-Currency Engine)
             </h2>
             <p style="font-size: 13px; color: var(--text-muted); margin-top: 4px;">
               Zero Hydration Delay — HTML contains pre-serialized application state without downloading JS hydration bundles!
@@ -443,8 +492,8 @@ export default component$(() => {
             <div style="font-size: 11px; color: var(--text-muted);">Resumable JSON Payload</div>
           </div>
           <div style="background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; padding: 10px;">
-            <div style="font-size: 18px; font-weight: 700; color: var(--accent-cyan);">{selectedAudio.title.split(' ')[0]}</div>
-            <div style="font-size: 11px; color: var(--text-muted);">Active Audio Track Store</div>
+            <div style="font-size: 18px; font-weight: 700; color: #10b981;">{selectedCurrency.value}</div>
+            <div style="font-size: 11px; color: var(--text-muted);">Active Currency Store</div>
           </div>
         </div>
       </section>
@@ -553,7 +602,7 @@ export default component$(() => {
                 <img src={item.image} alt={item.name} width="50" height="50" style="object-fit: cover; border-radius: 6px;" />
                 <div style="flex: 1;">
                   <strong style="font-size: 13px; color: #fff; display: block;">{item.name}</strong>
-                  <span style="font-size: 13px; color: var(--accent-cyan); font-weight: 700;">{formatCurrency(item.price)}</span>
+                  <span style="font-size: 13px; color: var(--accent-cyan); font-weight: 700;">{formatCurrency(item.price, selectedCurrency.value)}</span>
                 </div>
                 <div style="display: flex; align-items: center; gap: 6px;">
                   <button type="button" style="background: rgba(255,255,255,0.1); border: none; color: #fff; width: 24px; height: 24px; border-radius: 4px; cursor: pointer;" onClick$={$(() => updateQuantity$(item.variantId, -1))}>-</button>
@@ -587,21 +636,21 @@ export default component$(() => {
           <div style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: var(--text-muted);">
             <div style="display: flex; justify-content: space-between;">
               <span>Subtotal:</span>
-              <strong style="color: #fff;">{formatCurrency(totals.subtotal)}</strong>
+              <strong style="color: #fff;">{totals.formattedSubtotal}</strong>
             </div>
             {totals.discount > 0 && (
               <div style="display: flex; justify-content: space-between; color: #10b981;">
                 <span>Discount (QWIK15):</span>
-                <strong>-{formatCurrency(totals.discount)}</strong>
+                <strong>-{totals.formattedDiscount}</strong>
               </div>
             )}
             <div style="display: flex; justify-content: space-between;">
               <span>Shipping:</span>
-              <strong style="color: #fff;">{totals.shipping === 0 ? 'FREE' : formatCurrency(totals.shipping)}</strong>
+              <strong style="color: #fff;">{totals.formattedShipping}</strong>
             </div>
             <div style="display: flex; justify-content: space-between; font-size: 16px; font-weight: 800; color: #fff; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 8px; margin-top: 4px;">
-              <span>Total:</span>
-              <span style="color: var(--accent-cyan);">{formatCurrency(totals.total)}</span>
+              <span>Total ({selectedCurrency.value}):</span>
+              <span style="color: var(--accent-cyan);">{totals.formattedTotal}</span>
             </div>
           </div>
 
@@ -609,7 +658,7 @@ export default component$(() => {
             type="button"
             class="btn-primary"
             style="width: 100%; margin-top: 16px;"
-            onClick$={$(() => alert(`Order placed for ${formatCurrency(totals.total)}!`))}
+            onClick$={$(() => alert(`Order placed for ${totals.formattedTotal}!`))}
           >
             Checkout Instant
           </button>
@@ -620,11 +669,11 @@ export default component$(() => {
 });
 
 export const head: DocumentHead = {
-  title: 'Nexus Apex Pro Wireless ANC Headphones | Qwik Sound Engine',
+  title: 'Nexus Apex Pro Wireless ANC Headphones | Qwik Persistent Engine',
   meta: [
     {
       name: 'description',
-      content: 'Instant load, resumable state Qwik E-commerce product page with interactive audio frequency visualizer and sound demo player.'
+      content: 'Instant load, resumable state Qwik E-commerce product page with multi-currency switcher and persistent cart sync.'
     }
   ]
 };
