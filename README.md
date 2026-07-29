@@ -2,8 +2,8 @@
 
 [![Vercel Deployment](https://img.shields.io/badge/Vercel-Live%20Demo-000000?style=for-the-badge&logo=vercel)](https://qwik-ecommerce-product-page-build49.vercel.app)
 [![GitHub Repository](https://img.shields.io/badge/GitHub-Repository-181717?style=for-the-badge&logo=github)](https://github.com/breakingthebot/qwik-ecommerce-product-page-build49)
-[![Tests](https://img.shields.io/badge/Vitest-10%20Passed-6E9F18?style=for-the-badge&logo=vitest)](file:///C:/Users/marve/Desktop/AI-286-Builds/Build_49/src/services/productService.spec.ts)
-[![Version](https://img.shields.io/badge/Release-v0.6.0-blue?style=for-the-badge)](file:///C:/Users/marve/Desktop/AI-286-Builds/Build_49/CHANGELOG.md)
+[![Tests](https://img.shields.io/badge/Vitest-11%20Passed-6E9F18?style=for-the-badge&logo=vitest)](file:///C:/Users/marve/Desktop/AI-286-Builds/Build_49/src/services/productService.spec.ts)
+[![Version](https://img.shields.io/badge/Release-v0.7.0-blue?style=for-the-badge)](file:///C:/Users/marve/Desktop/AI-286-Builds/Build_49/CHANGELOG.md)
 
 ---
 
@@ -20,6 +20,7 @@
 ## 🔥 Key Features
 
 - **⚡ Instant Load Resumable State Architecture**: 0ms hydration execution delay via Qwik's fine-grained chunk serialization (`$`).
+- **🎛️ Interactive Sound Profile Equalizer**: 5-band gain sliders (60Hz to 12kHz) with hardware DSP presets (*Audiophile Neutral*, *Cyber Sub-Bass*, *Vocal Clarity*, *FPS Gaming*) and reactive SVG curve graph.
 - **⚖️ Product Comparison Matrix Drawer**: Side-by-side spec comparison breakdown across *Apex Air*, *Apex Pro*, and *Apex Studio Master* with real-time multi-currency reactivity.
 - **🌐 Multi-Currency Switcher**: Real-time conversion across `USD ($)`, `EUR (€)`, `GBP (£)`, and `JPY (¥)`.
 - **💾 LocalStorage Cart & Currency Persistence**: LocalStorage sync engine keeping cart items and currency choices intact across page reloads via Qwik `useVisibleTask$`.

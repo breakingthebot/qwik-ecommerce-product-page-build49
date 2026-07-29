@@ -9,6 +9,7 @@ import {
   calculate360Rotation,
   calculateFlashSaleCountdown,
   calculateFrequencyBars,
+  calculateEqCurve,
   getComparisonModels,
   CURRENCIES,
   type CurrencyCode,
@@ -23,6 +24,9 @@ export default component$(() => {
   const selectedVariantId = useSignal(product.variants[0].id);
   const selectedLedId = useSignal(product.ledPresets[0].id);
   const selectedAudioTrackId = useSignal(product.audioTracks[0].id);
+  const selectedEqPresetId = useSignal(product.eqPresets[0].id);
+  const eqGains = useStore<number[]>([0, 0, 0, 0, 0]);
+
   const selectedCurrency = useSignal<CurrencyCode>('USD');
   const isCompareOpen = useSignal<boolean>(false);
   const isAudioPlaying = useSignal<boolean>(false);
@@ -114,7 +118,9 @@ export default component$(() => {
   const selectedVariant = product.variants.find(v => v.id === selectedVariantId.value) || product.variants[0];
   const selectedLed = product.ledPresets.find(l => l.id === selectedLedId.value) || product.ledPresets[0];
   const selectedAudio = product.audioTracks.find(a => a.id === selectedAudioTrackId.value) || product.audioTracks[0];
+  const selectedEqPreset = product.eqPresets.find(e => e.id === selectedEqPresetId.value) || product.eqPresets[0];
   const frequencyBars = calculateFrequencyBars(selectedAudio.waveformPeaks, isAudioPlaying.value ? audioTimeOffset.value : 0);
+  const eqCurveSvg = calculateEqCurve(eqGains, 600, 100);
   const countdown = calculateFlashSaleCountdown(flashSaleSeconds.value);
   const currentSocial = product.socialPurchases[activeSocialPurchaseIndex.value];
 
@@ -177,9 +183,21 @@ export default component$(() => {
     isDragging.value = false;
   });
 
+  const selectEqPreset$ = $((presetId: string) => {
+    selectedEqPresetId.value = presetId;
+    const found = product.eqPresets.find(p => p.id === presetId);
+    if (found) {
+      found.gains.forEach((g, i) => eqGains[i] = g);
+    }
+  });
+
+  const updateGain$ = $((index: number, val: number) => {
+    eqGains[index] = val;
+  });
+
   const totals = calculateCartTotals(cartStore.items, appliedPromo.value, selectedCurrency.value);
   const filteredReviews = filterReviews(product.reviews, ratingFilter.value);
-  const snapshot = getResumableSnapshot(cartStore.items, selectedVariantId.value, selectedLedId.value, rotationAngle.value, flashSaleSeconds.value, selectedAudioTrackId.value, selectedCurrency.value, isCompareOpen.value);
+  const snapshot = getResumableSnapshot(cartStore.items, selectedVariantId.value, selectedLedId.value, rotationAngle.value, flashSaleSeconds.value, selectedAudioTrackId.value, selectedCurrency.value, isCompareOpen.value, selectedEqPresetId.value);
   const totalCartCount = cartStore.items.reduce((acc, item) => acc + item.quantity, 0);
 
   return (
@@ -197,7 +215,7 @@ export default component$(() => {
       <header class="navbar">
         <a href="#" class="brand-logo">
           ⚡ NEXUS<span style="color: var(--accent-cyan);">CYBER</span>
-          <span class="brand-badge">Qwik Matrix Engine</span>
+          <span class="brand-badge">Qwik Equalizer Engine</span>
         </a>
 
         <div class="nav-actions" style="display: flex; gap: 12px; align-items: center;">
@@ -394,6 +412,72 @@ export default component$(() => {
         </div>
       </main>
 
+      {/* Interactive Sound Profile Equalizer Section */}
+      <section style="background: var(--bg-card); border: 1px solid var(--accent-magenta); border-radius: var(--radius-lg); padding: 24px; margin-bottom: 40px; box-shadow: 0 0 25px rgba(255, 0, 127, 0.15);">
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 16px; margin-bottom: 20px;">
+          <div>
+            <h2 style="font-size: 20px; font-weight: 800; color: #fff; display: flex; align-items: center; gap: 10px;">
+              🎛️ Interactive Sound Profile Equalizer & DSP Curve Customizer
+            </h2>
+            <p style="font-size: 13px; color: var(--text-muted); margin-top: 4px;">
+              Customize frequency gains (-12dB to +12dB) across 5 acoustic bands or choose a hardware DSP preset.
+            </p>
+          </div>
+        </div>
+
+        {/* EQ Presets Row */}
+        <div style="display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap;">
+          {product.eqPresets.map((preset) => (
+            <button
+              key={preset.id}
+              type="button"
+              class={`variant-btn ${preset.id === selectedEqPresetId.value ? 'active' : ''}`}
+              style="flex: 1; min-width: 200px; text-align: left; padding: 12px 16px; display: block;"
+              onClick$={$(() => selectEqPreset$(preset.id))}
+            >
+              <strong style="font-size: 14px; color: #fff; display: block;">{preset.name}</strong>
+              <span style="font-size: 12px; color: var(--text-muted); display: block; margin-top: 2px;">{preset.description}</span>
+            </button>
+          ))}
+        </div>
+
+        {/* Interactive Response Curve SVG Visualization */}
+        <div style="background: rgba(0, 0, 0, 0.4); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; padding: 20px; text-align: center; margin-bottom: 24px; position: relative;">
+          <svg width="100%" height="100" viewBox="0 0 600 100" style="overflow: visible;">
+            <line x1="0" y1="50" x2="600" y2="50" stroke="rgba(255,255,255,0.2)" stroke-dasharray="4 4" />
+            <path d={eqCurveSvg} fill="none" stroke="var(--accent-magenta)" stroke-width="3" />
+          </svg>
+          <div style="display: flex; justify-content: space-between; font-size: 11px; color: var(--text-muted); margin-top: 8px;">
+            <span>60Hz (Sub-Bass)</span>
+            <span>250Hz (Low-Mid)</span>
+            <span>1kHz (Mid)</span>
+            <span>4kHz (Presence)</span>
+            <span>12kHz (Treble)</span>
+          </div>
+        </div>
+
+        {/* 5-Band Gain Sliders */}
+        <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px;">
+          {['60Hz', '250Hz', '1kHz', '4kHz', '12kHz'].map((label, idx) => (
+            <div key={label} style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 12px; text-align: center;">
+              <span style="font-size: 12px; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 6px;">{label}</span>
+              <div style="font-size: 16px; font-weight: 800; color: eqGains[idx] > 0 ? '#10b981' : eqGains[idx] < 0 ? '#ef4444' : '#fff'; margin-bottom: 8px;">
+                {eqGains[idx] > 0 ? `+${eqGains[idx]}` : eqGains[idx]} dB
+              </div>
+              <input
+                type="range"
+                min="-12"
+                max="12"
+                step="1"
+                value={eqGains[idx]}
+                onInput$={$((e) => updateGain$(idx, parseInt((e.target as HTMLInputElement).value, 10)))}
+                style="width: 100%; accent-color: var(--accent-magenta); cursor: pointer;"
+              />
+            </div>
+          ))}
+        </div>
+      </section>
+
       {/* Audio Frequency Visualizer & Sound Demo Player Section */}
       <section style="background: var(--bg-card); border: 1px solid var(--accent-cyan); border-radius: var(--radius-lg); padding: 24px; margin-bottom: 40px; box-shadow: 0 0 25px rgba(0, 246, 255, 0.15);">
         <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 16px; margin-bottom: 20px;">
@@ -487,7 +571,7 @@ export default component$(() => {
         <div class="resumability-header">
           <div>
             <h2 style="font-size: 18px; font-weight: 800; color: var(--accent-cyan);">
-              ⚡ Qwik Resumable State Engine Audit (Comparison Matrix Engine)
+              ⚡ Qwik Resumable State Engine Audit (Hardware DSP EQ Engine)
             </h2>
             <p style="font-size: 13px; color: var(--text-muted); margin-top: 4px;">
               Zero Hydration Delay — HTML contains pre-serialized application state without downloading JS hydration bundles!
@@ -512,10 +596,8 @@ export default component$(() => {
             <div style="font-size: 11px; color: var(--text-muted);">Resumable JSON Payload</div>
           </div>
           <div style="background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; padding: 10px;">
-            <div style="font-size: 18px; font-weight: 700; color: isCompareOpen.value ? '#10b981' : 'var(--text-muted)';">
-              {isCompareOpen.value ? 'OPEN' : 'CLOSED'}
-            </div>
-            <div style="font-size: 11px; color: var(--text-muted);">Comparison Drawer Store</div>
+            <div style="font-size: 18px; font-weight: 700; color: var(--accent-magenta);">{selectedEqPreset.name.split(' ')[0]}</div>
+            <div style="font-size: 11px; color: var(--text-muted);">Active Hardware DSP EQ Store</div>
           </div>
         </div>
       </section>
@@ -793,11 +875,11 @@ export default component$(() => {
 });
 
 export const head: DocumentHead = {
-  title: 'Nexus Apex Pro Wireless ANC Headphones | Qwik Matrix Engine',
+  title: 'Nexus Apex Pro Wireless ANC Headphones | Qwik Equalizer Engine',
   meta: [
     {
       name: 'description',
-      content: 'Instant load, resumable state Qwik E-commerce product page with product comparison matrix drawer.'
+      content: 'Instant load, resumable state Qwik E-commerce product page with interactive 5-band sound profile equalizer and response curve generator.'
     }
   ]
 };

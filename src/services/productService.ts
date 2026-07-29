@@ -1,6 +1,6 @@
 // src/services/productService.ts
 // Business Logic & Product Engine for Build 49 - Qwik E-Commerce Product Page.
-// Updated: 2026-07-29 for Iteration 6 (Qwik Product Comparison Matrix Drawer)
+// Updated: 2026-07-29 for Iteration 7 (Qwik Interactive Sound Profile Equalizer)
 
 export interface ProductVariant {
   id: string;
@@ -70,6 +70,13 @@ export interface ComparisonModel {
   isCurrentProduct?: boolean;
 }
 
+export interface EqPreset {
+  id: string;
+  name: string;
+  description: string;
+  gains: number[]; // 5 band gains in dB (-12 to +12)
+}
+
 export type CurrencyCode = 'USD' | 'EUR' | 'GBP' | 'JPY';
 
 export interface CurrencyConfig {
@@ -99,6 +106,7 @@ export interface ProductData {
   ledPresets: LedPreset[];
   socialPurchases: SocialProofPurchase[];
   audioTracks: AudioDemoTrack[];
+  eqPresets: EqPreset[];
 }
 
 /**
@@ -182,6 +190,12 @@ export function getProductData(): ProductData {
         description: 'Immersive 7.1.4 Dolby Atmos spatial positioning and crystal clear vocal separation.'
       }
     ],
+    eqPresets: [
+      { id: 'eq-flat', name: 'Audiophile Neutral', description: 'Harmon curve flat tuning for uncolored reference sound.', gains: [0, 0, 0, 0, 0] },
+      { id: 'eq-bass', name: 'Cyber Sub-Bass Boost', description: '+8dB low-shelf bump at 60Hz for deep sub-bass impact.', gains: [8, 5, 1, 0, 2] },
+      { id: 'eq-vocal', name: 'Vocal & Acoustic Clarity', description: 'Midrange boost at 1kHz-3kHz for crisp podcasts & vocals.', gains: [-2, 1, 6, 4, 1] },
+      { id: 'eq-game', name: 'FPS Gaming Spatial', description: 'High-frequency treble boost for footstep audio cues.', gains: [4, -2, 0, 6, 8] }
+    ],
     features: [
       '⚡ Qwik Instant Load Resumable State Architecture (0ms Hydration Delay)',
       '🎧 50mm Custom Planar Magnetic Drivers with Sub-Bass Boost',
@@ -231,6 +245,20 @@ export function getProductData(): ProductData {
       }
     ]
   };
+}
+
+/**
+ * Calculates SVG path coordinates for Equalizer frequency response curve visualization.
+ */
+export function calculateEqCurve(gains: number[], width = 600, height = 120): string {
+  if (!gains || gains.length === 0) return '';
+  const points = gains.map((gain, idx) => {
+    const x = (idx / (gains.length - 1)) * width;
+    // Map gain (-12dB to +12dB) to Y coordinate (0 to height)
+    const y = (height / 2) - (gain / 12) * (height / 2.4);
+    return `${Math.round(x)},${Math.round(y)}`;
+  });
+  return `M ${points.join(' L ')}`;
 }
 
 /**
@@ -431,15 +459,15 @@ export function filterReviews(reviews: ProductReview[], minRating = 0): ProductR
 /**
  * Generates serialized resumable state metadata snapshot.
  */
-export function getResumableSnapshot(cartItems: CartItem[], selectedVariantId: string, ledColor = 'led-cyan', rotationAngle = 0, flashSaleSeconds = 14400, activeAudioTrack = 'tr-bass', currency: CurrencyCode = 'USD', isCompareOpen = false): {
+export function getResumableSnapshot(cartItems: CartItem[], selectedVariantId: string, ledColor = 'led-cyan', rotationAngle = 0, flashSaleSeconds = 14400, activeAudioTrack = 'tr-bass', currency: CurrencyCode = 'USD', isCompareOpen = false, eqPreset = 'eq-flat'): {
   serializedObjectsCount: number;
   resumabilityKey: string;
   hydrationCostMs: number;
   payloadSizeBytes: number;
 } {
-  const payload = JSON.stringify({ cartItems, selectedVariantId, ledColor, rotationAngle, flashSaleSeconds, activeAudioTrack, currency, isCompareOpen });
+  const payload = JSON.stringify({ cartItems, selectedVariantId, ledColor, rotationAngle, flashSaleSeconds, activeAudioTrack, currency, isCompareOpen, eqPreset });
   return {
-    serializedObjectsCount: cartItems.length + 7,
+    serializedObjectsCount: cartItems.length + 8,
     resumabilityKey: `qwik:store:${Date.now().toString(36)}`,
     hydrationCostMs: 0.0, // Qwik zero hydration delay
     payloadSizeBytes: new Blob([payload]).size

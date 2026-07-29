@@ -5,6 +5,14 @@ All notable changes to **Build 49 (Qwik E-Commerce Product Page)** will be docum
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.0] - 2026-07-29
+
+### Added
+- Integrated **Qwik Interactive Sound Profile Equalizer** in `src/services/productService.ts` and `src/routes/index.tsx`.
+- Added hardware DSP presets (`eqPresets`: Audiophile Neutral, Cyber Sub-Bass Boost, Vocal Clarity, FPS Gaming Spatial) and SVG response curve generator (`calculateEqCurve`).
+- Rendered Equalizer section card, 5-band gain sliders (60Hz to 12kHz), preset selector chips, and real-time SVG curve response graph.
+- Updated unit tests in `src/services/productService.spec.ts` (11 passing unit tests).
+
 ## [0.6.0] - 2026-07-29
 
 ### Added

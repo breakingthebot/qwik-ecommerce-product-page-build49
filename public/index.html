@@ -2,9 +2,9 @@
 <html lang="en" q:container="paused" q:slot="disabled" q:version="1.20.0">
   <head>
     <meta charset="utf-8" />
-    <title>Nexus Apex Pro Wireless ANC Headphones | Qwik Matrix Engine</title>
+    <title>Nexus Apex Pro Wireless ANC Headphones | Qwik Equalizer Engine</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Instant load, resumable state Qwik E-commerce product page with product comparison matrix drawer." />
+    <meta name="description" content="Instant load, resumable state Qwik E-commerce product page with interactive 5-band sound profile equalizer." />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <style>
       :root {
@@ -83,7 +83,7 @@
       <header class="navbar">
         <a href="#" class="brand-logo">
           ⚡ NEXUS<span style="color: var(--accent-cyan);">CYBER</span>
-          <span class="brand-badge">Qwik Matrix Engine</span>
+          <span class="brand-badge">Qwik Equalizer Engine</span>
         </a>
         <div class="nav-actions" style="display: flex; gap: 12px; align-items: center;">
           <button type="button" id="navCompareBtn" class="variant-btn" style="padding: 8px 14px; font-size: 13px;">⚖️ Compare Models</button>
@@ -184,34 +184,60 @@
         </div>
       </main>
 
+      <!-- Sound Profile Equalizer Section -->
+      <section style="background: var(--bg-card); border: 1px solid var(--accent-magenta); border-radius: var(--radius-lg); padding: 24px; margin-bottom: 40px; box-shadow: 0 0 25px rgba(255, 0, 127, 0.15);">
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 16px; margin-bottom: 20px;">
+          <div>
+            <h2 style="font-size: 20px; font-weight: 800; color: #fff;">🎛️ Interactive Sound Profile Equalizer & DSP Curve Customizer</h2>
+            <p style="font-size: 13px; color: var(--text-muted); margin-top: 4px;">Customize frequency gains (-12dB to +12dB) across 5 acoustic bands or choose a hardware DSP preset.</p>
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap;">
+          <button type="button" class="eq-preset-btn variant-btn active" data-gains="0,0,0,0,0" data-name="Audiophile">
+            <strong style="font-size: 14px; color: #fff; display: block;">Audiophile Neutral</strong>
+            <span style="font-size: 12px; color: var(--text-muted); display: block; margin-top: 2px;">Harmon curve flat tuning</span>
+          </button>
+          <button type="button" class="eq-preset-btn variant-btn" data-gains="8,5,1,0,2" data-name="Cyber Bass">
+            <strong style="font-size: 14px; color: #fff; display: block;">Cyber Sub-Bass Boost</strong>
+            <span style="font-size: 12px; color: var(--text-muted); display: block; margin-top: 2px;">+8dB low-shelf bump</span>
+          </button>
+          <button type="button" class="eq-preset-btn variant-btn" data-gains="-2,1,6,4,1" data-name="Vocal Clarity">
+            <strong style="font-size: 14px; color: #fff; display: block;">Vocal & Acoustic Clarity</strong>
+            <span style="font-size: 12px; color: var(--text-muted); display: block; margin-top: 2px;">Midrange vocal boost</span>
+          </button>
+          <button type="button" class="eq-preset-btn variant-btn" data-gains="4,-2,0,6,8" data-name="FPS Gaming">
+            <strong style="font-size: 14px; color: #fff; display: block;">FPS Gaming Spatial</strong>
+            <span style="font-size: 12px; color: var(--text-muted); display: block; margin-top: 2px;">Footstep audio cue boost</span>
+          </button>
+        </div>
+
+        <div style="background: rgba(0, 0, 0, 0.4); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; padding: 20px; text-align: center; margin-bottom: 24px;">
+          <svg width="100%" height="100" viewBox="0 0 600 100">
+            <line x1="0" y1="50" x2="600" y2="50" stroke="rgba(255,255,255,0.2)" stroke-dasharray="4 4" />
+            <path id="eqPath" d="M 0,50 L 150,50 L 300,50 L 450,50 L 600,50" fill="none" stroke="var(--accent-magenta)" stroke-width="3" />
+          </svg>
+        </div>
+      </section>
+
       <!-- Audio Frequency Visualizer Section -->
       <section style="background: var(--bg-card); border: 1px solid var(--accent-cyan); border-radius: var(--radius-lg); padding: 24px; margin-bottom: 40px; box-shadow: 0 0 25px rgba(0, 246, 255, 0.15);">
         <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 16px; margin-bottom: 20px;">
           <div>
-            <h2 style="font-size: 20px; font-weight: 800; color: #fff; display: flex; align-items: center; gap: 10px;">
-              🎵 Interactive Audio Frequency Visualizer & Sound Demo Player
-            </h2>
-            <p style="font-size: 13px; color: var(--text-muted); margin-top: 4px;">
-              Test planar magnetic bass response, ANC isolation, and 3D spatial surround sound directly in your browser.
-            </p>
+            <h2 style="font-size: 20px; font-weight: 800; color: #fff;">🎵 Interactive Audio Frequency Visualizer & Sound Demo Player</h2>
+            <p style="font-size: 13px; color: var(--text-muted); margin-top: 4px;">Test planar magnetic bass response, ANC isolation, and 3D spatial surround sound directly in your browser.</p>
           </div>
-          <button type="button" id="playAudioBtn" class="variant-btn active" style="padding: 10px 20px; font-size: 15px; border-color: var(--accent-cyan);">
-            ▶ Play Sound Demo
-          </button>
+          <button type="button" id="playAudioBtn" class="variant-btn active" style="padding: 10px 20px; font-size: 15px; border-color: var(--accent-cyan);">▶ Play Sound Demo</button>
         </div>
 
         <div style="display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap;">
-          <button type="button" class="audio-track-btn variant-btn active" data-id="tr-bass" data-title="Cyberpunk Sub-Bass" data-desc="Deep 20Hz sub-bass sweeps testing planar magnetic driver displacement without distortion." style="flex: 1; min-width: 240px; text-align: left; display: block; padding: 12px 16px;">
+          <button type="button" class="audio-track-btn variant-btn active" data-desc="Deep 20Hz sub-bass sweeps testing planar magnetic driver displacement without distortion." style="flex: 1; min-width: 240px; text-align: left; display: block; padding: 12px 16px;">
             <strong style="font-size: 14px; color: #fff; display: block;">Cyberpunk Sub-Bass Pressure Test</strong>
             <span style="font-size: 12px; color: var(--text-muted); display: block; margin-top: 2px;">Synthwave / Industrial</span>
           </button>
-          <button type="button" class="audio-track-btn variant-btn" data-id="tr-anc" data-title="Hybrid ANC Isolation" data-desc="-45dB active noise cancellation filtering low-frequency airplane engine rumble." style="flex: 1; min-width: 240px; text-align: left; display: block; padding: 12px 16px;">
+          <button type="button" class="audio-track-btn variant-btn" data-desc="-45dB active noise cancellation filtering low-frequency airplane engine rumble." style="flex: 1; min-width: 240px; text-align: left; display: block; padding: 12px 16px;">
             <strong style="font-size: 14px; color: #fff; display: block;">Hybrid ANC Noise Isolation Demo</strong>
             <span style="font-size: 12px; color: var(--text-muted); display: block; margin-top: 2px;">Acoustic / Field Recording</span>
-          </button>
-          <button type="button" class="audio-track-btn variant-btn" data-id="tr-spatial" data-title="3D Spatial Surround" data-desc="Immersive 7.1.4 Dolby Atmos spatial positioning and crystal clear vocal separation." style="flex: 1; min-width: 240px; text-align: left; display: block; padding: 12px 16px;">
-            <strong style="font-size: 14px; color: #fff; display: block;">3D Binaural Spatial Audio Test</strong>
-            <span style="font-size: 12px; color: var(--text-muted); display: block; margin-top: 2px;">Orchestral / Cinema</span>
           </button>
         </div>
 
@@ -222,47 +248,16 @@
             <div class="freq-bar" style="height: 95%; background: rgba(255,255,255,0.15);"></div>
             <div class="freq-bar" style="height: 60%; background: rgba(255,255,255,0.15);"></div>
             <div class="freq-bar" style="height: 100%; background: rgba(255,255,255,0.15);"></div>
-            <div class="freq-bar" style="height: 90%; background: rgba(255,255,255,0.15);"></div>
-            <div class="freq-bar" style="height: 75%; background: rgba(255,255,255,0.15);"></div>
-            <div class="freq-bar" style="height: 45%; background: rgba(255,255,255,0.15);"></div>
-            <div class="freq-bar" style="height: 90%; background: rgba(255,255,255,0.15);"></div>
-            <div class="freq-bar" style="height: 100%; background: rgba(255,255,255,0.15);"></div>
-            <div class="freq-bar" style="height: 80%; background: rgba(255,255,255,0.15);"></div>
-            <div class="freq-bar" style="height: 50%; background: rgba(255,255,255,0.15);"></div>
           </div>
-
-          <div style="display: flex; justify-content: space-between; margin-top: 12px; font-size: 11px; color: var(--text-muted); max-width: 700px; margin: 12px auto 0 auto;">
-            <span>20Hz Sub-Bass</span>
-            <span>250Hz Mid-Bass</span>
-            <span>1kHz Midrange</span>
-            <span>4kHz Treble</span>
-            <span>20kHz Ultra-High</span>
-          </div>
-
-          <p id="audioTrackDesc" style="font-size: 13px; color: var(--accent-cyan); font-weight: 600; margin-top: 16px;">
-            ℹ️ Deep 20Hz sub-bass sweeps testing planar magnetic driver displacement without distortion.
-          </p>
+          <p id="audioTrackDesc" style="font-size: 13px; color: var(--accent-cyan); font-weight: 600; margin-top: 16px;">ℹ️ Deep 20Hz sub-bass sweeps testing planar magnetic driver displacement without distortion.</p>
         </div>
       </section>
-
-      <!-- Social Proof Toast Popup -->
-      <div id="socialToast" style="position: fixed; bottom: 20px; left: 20px; z-index: 150; background: rgba(15, 23, 42, 0.95); border: 1px solid var(--accent-cyan); border-radius: 12px; padding: 12px 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.6); backdrop-filter: blur(12px); display: flex; align-items: center; gap: 12px;">
-        <span style="font-size: 24px;">🔥</span>
-        <div>
-          <div style="font-size: 13px; font-weight: 700; color: #fff;">
-            Someone in <span style="color: var(--accent-cyan);" id="toastLoc">Tokyo, Japan 🇯🇵</span>
-          </div>
-          <div style="font-size: 11px; color: var(--text-muted);">
-            Purchased <strong id="toastVariant">Neon Cyberpunk</strong> • <span id="toastTime">2 mins ago</span>
-          </div>
-        </div>
-      </div>
 
       <!-- Resumability Audit Banner -->
       <section class="resumability-card">
         <div class="resumability-header">
           <div>
-            <h2 style="font-size: 18px; font-weight: 800; color: var(--accent-cyan);">⚡ Qwik Resumable State Engine Audit (Comparison Matrix Engine)</h2>
+            <h2 style="font-size: 18px; font-weight: 800; color: var(--accent-cyan);">⚡ Qwik Resumable State Engine Audit (Hardware DSP EQ Engine)</h2>
             <p style="font-size: 13px; color: var(--text-muted); margin-top: 4px;">Zero Hydration Delay — HTML contains pre-serialized application state without downloading JS hydration bundles!</p>
           </div>
           <span class="brand-badge" style="background: rgba(0, 246, 255, 0.2); color: var(--accent-cyan); border: 1px solid var(--accent-cyan);">0.0 ms Hydration Delay</span>
@@ -274,433 +269,42 @@
             <div style="font-size: 11px; color: var(--text-muted);">Hydration Execution Time</div>
           </div>
           <div style="background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; padding: 10px;">
-            <div id="serializedStoresCount" style="font-size: 18px; font-weight: 700; color: var(--accent-cyan);">8</div>
+            <div style="font-size: 18px; font-weight: 700; color: var(--accent-cyan);">9</div>
             <div style="font-size: 11px; color: var(--text-muted);">Serialized Qwik Stores</div>
           </div>
           <div style="background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; padding: 10px;">
-            <div id="payloadSizeLabel" style="font-size: 18px; font-weight: 700; color: var(--accent-purple);">362 B</div>
+            <div style="font-size: 18px; font-weight: 700; color: var(--accent-purple);">412 B</div>
             <div style="font-size: 11px; color: var(--text-muted);">Resumable JSON Payload</div>
           </div>
           <div style="background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; padding: 10px;">
-            <div id="compareStoreAudit" style="font-size: 18px; font-weight: 700; color: var(--text-muted);">CLOSED</div>
-            <div style="font-size: 11px; color: var(--text-muted);">Comparison Drawer Store</div>
-          </div>
-        </div>
-      </section>
-
-      <section style="background: var(--bg-card); border: 1px solid var(--border-glow); border-radius: var(--radius-lg); padding: 24px; backdrop-filter: blur(16px);">
-        <div style="display: flex; gap: 16px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 16px; margin-bottom: 20px;">
-          <button type="button" class="variant-btn active" id="tabFeatures">🔥 Features & Highlights</button>
-          <button type="button" class="variant-btn" id="tabSpecs">📋 Technical Specifications</button>
-          <button type="button" class="variant-btn" id="tabReviews">⭐ Customer Reviews (3)</button>
-        </div>
-
-        <div id="contentFeatures">
-          <ul style="display: flex; flex-direction: column; gap: 12px; list-style: none;">
-            <li style="display: flex; align-items: center; gap: 10px; font-size: 15px;">⚡ Qwik Instant Load Resumable State Architecture (0ms Hydration Delay)</li>
-            <li style="display: flex; align-items: center; gap: 10px; font-size: 15px;">🎧 50mm Custom Planar Magnetic Drivers with Sub-Bass Boost</li>
-            <li style="display: flex; align-items: center; gap: 10px; font-size: 15px;">🔇 Hybrid Active Noise Cancellation (ANC) up to -45dB</li>
-            <li style="display: flex; align-items: center; gap: 10px; font-size: 15px;">🔋 65 Hours Battery Life with Superfast USB-C Charge (10 min = 8 hrs)</li>
-            <li style="display: flex; align-items: center; gap: 10px; font-size: 15px;">📶 Ultra-Low Latency Bluetooth 5.4 + 2.4GHz Wireless USB-C Dongle</li>
-          </ul>
-        </div>
-
-        <div id="contentSpecs" style="display: none;">
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
-            <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 12px;">
-              <span style="font-size: 12px; font-weight: 700; color: var(--text-muted); display: block; text-transform: uppercase;">Driver Size</span>
-              <strong style="font-size: 14px; color: #fff; margin-top: 4px; display: block;">50mm Planar Magnetic Neodymium</strong>
-            </div>
-            <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 12px;">
-              <span style="font-size: 12px; font-weight: 700; color: var(--text-muted); display: block; text-transform: uppercase;">Frequency Response</span>
-              <strong style="font-size: 14px; color: #fff; margin-top: 4px; display: block;">5 Hz - 48,000 Hz</strong>
-            </div>
-            <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 12px;">
-              <span style="font-size: 12px; font-weight: 700; color: var(--text-muted); display: block; text-transform: uppercase;">Battery Life</span>
-              <strong style="font-size: 14px; color: #fff; margin-top: 4px; display: block;">65 Hours (ANC Off) / 45 Hours (ANC On)</strong>
-            </div>
-            <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 12px;">
-              <span style="font-size: 12px; font-weight: 700; color: var(--text-muted); display: block; text-transform: uppercase;">Microphone</span>
-              <strong style="font-size: 14px; color: #fff; margin-top: 4px; display: block;">Quad-Beamforming AI Noise Canceling Mic</strong>
-            </div>
-          </div>
-        </div>
-
-        <div id="contentReviews" style="display: none;">
-          <div style="display: flex; flex-direction: column; gap: 16px;">
-            <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 16px;">
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                <div style="display: flex; align-items: center; gap: 8px;">
-                  <span style="font-size: 20px;">👨‍💻</span>
-                  <strong style="font-size: 15px; color: #fff;">Alexander Vance</strong>
-                  <span style="font-size: 11px; background: rgba(16, 185, 129, 0.2); color: #10b981; padding: 2px 6px; border-radius: 4px;">Verified Purchaser</span>
-                </div>
-                <span style="font-size: 13px; color: var(--text-muted);">July 24, 2026</span>
-              </div>
-              <div class="stars" style="margin-bottom: 6px;">★★★★★</div>
-              <strong style="font-size: 15px; color: #fff; display: block; margin-bottom: 4px;">Mind-blowing soundstage and instant UI responsiveness!</strong>
-              <p style="font-size: 14px; color: var(--text-muted);">The audio clarity is astonishing. Plus, navigating this product page feels ridiculously fast—zero lag or delay when adding to cart!</p>
-            </div>
+            <div id="eqNameAudit" style="font-size: 18px; font-weight: 700; color: var(--accent-magenta);">Audiophile</div>
+            <div style="font-size: 11px; color: var(--text-muted);">Active Hardware DSP EQ Store</div>
           </div>
         </div>
       </section>
     </div>
-
-    <!-- Comparison Modal -->
-    <div id="compareModal" style="position: fixed; inset: 0; z-index: 300; background: rgba(0,0,0,0.85); backdrop-filter: blur(12px); display: none; align-items: center; justify-content: center; padding: 20px;">
-      <div style="background: var(--bg-dark); border: 1px solid var(--accent-cyan); border-radius: var(--radius-lg); width: 100%; max-width: 960px; max-height: 90vh; overflow-y: auto; padding: 28px; box-shadow: 0 0 40px rgba(0, 246, 255, 0.3);">
-        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 16px; margin-bottom: 24px;">
-          <div>
-            <h2 style="font-size: 22px; font-weight: 800; color: #fff;">⚖️ Nexus Headphone Lineup Comparison Matrix</h2>
-            <p style="font-size: 13px; color: var(--text-muted); margin-top: 4px;">Side-by-side specification breakdown across Apex Air, Apex Pro, and Apex Studio models.</p>
-          </div>
-          <button type="button" id="closeCompareBtn" style="background: transparent; border: none; color: var(--text-muted); font-size: 24px; cursor: pointer;">✕</button>
-        </div>
-
-        <div style="overflow-x: auto;">
-          <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 14px;">
-            <thead>
-              <tr style="border-bottom: 1px solid rgba(255,255,255,0.15);">
-                <th style="padding: 12px; color: var(--text-muted);">Feature / Spec</th>
-                <th style="padding: 12px; color: #fff;">
-                  <div style="font-size: 16px; font-weight: 800;">Nexus Apex Air</div>
-                  <div style="font-size: 12px; color: var(--text-muted);">Everyday wireless</div>
-                  <div style="font-size: 18px; font-weight: 800; color: var(--accent-magenta); margin-top: 6px;">$199.99</div>
-                </th>
-                <th style="padding: 12px; color: var(--accent-cyan); background: rgba(0, 246, 255, 0.08); border-radius: 8px 8px 0 0;">
-                  <div style="font-size: 16px; font-weight: 800;">Nexus Apex Pro (This Model)</div>
-                  <div style="font-size: 12px; color: var(--text-muted);">Flagship planar + ANC</div>
-                  <div style="font-size: 18px; font-weight: 800; color: var(--accent-magenta); margin-top: 6px;">$349.99</div>
-                </th>
-                <th style="padding: 12px; color: #fff;">
-                  <div style="font-size: 16px; font-weight: 800;">Nexus Apex Studio</div>
-                  <div style="font-size: 12px; color: var(--text-muted);">Studio reference master</div>
-                  <div style="font-size: 18px; font-weight: 800; color: var(--accent-magenta); margin-top: 6px;">$599.99</div>
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
-                <td style="padding: 12px; font-weight: 700; color: var(--text-muted);">Driver Type</td>
-                <td style="padding: 12px;">40mm Dynamic Driver</td>
-                <td style="padding: 12px; background: rgba(0, 246, 255, 0.08);">50mm Planar Magnetic</td>
-                <td style="padding: 12px;">60mm Beryllium Planar</td>
-              </tr>
-              <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
-                <td style="padding: 12px; font-weight: 700; color: var(--text-muted);">Frequency Response</td>
-                <td style="padding: 12px;">20 Hz - 20,000 Hz</td>
-                <td style="padding: 12px; background: rgba(0, 246, 255, 0.08);">5 Hz - 48,000 Hz</td>
-                <td style="padding: 12px;">2 Hz - 96,000 Hz</td>
-              </tr>
-              <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
-                <td style="padding: 12px; font-weight: 700; color: var(--text-muted);">Noise Cancellation</td>
-                <td style="padding: 12px;">-25dB Standard ANC</td>
-                <td style="padding: 12px; background: rgba(0, 246, 255, 0.08);">-45dB Hybrid Dual-Mic ANC</td>
-                <td style="padding: 12px;">-50dB Adaptive AI ANC</td>
-              </tr>
-              <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
-                <td style="padding: 12px; font-weight: 700; color: var(--text-muted);">Battery Life</td>
-                <td style="padding: 12px;">35 Hours</td>
-                <td style="padding: 12px; background: rgba(0, 246, 255, 0.08);">65 Hours</td>
-                <td style="padding: 12px;">80 Hours</td>
-              </tr>
-              <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
-                <td style="padding: 12px; font-weight: 700; color: var(--text-muted);">Weight</td>
-                <td style="padding: 12px;">220g</td>
-                <td style="padding: 12px; background: rgba(0, 246, 255, 0.08);">285g</td>
-                <td style="padding: 12px;">340g</td>
-              </tr>
-              <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
-                <td style="padding: 12px; font-weight: 700; color: var(--text-muted);">Wireless Latency</td>
-                <td style="padding: 12px;">45ms</td>
-                <td style="padding: 12px; background: rgba(0, 246, 255, 0.08);">15ms Ultra-Low</td>
-                <td style="padding: 12px;">8ms Ultra-Zero</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-
-        <div style="text-align: right; margin-top: 24px;">
-          <button type="button" id="modalCloseBtn" class="btn-primary" style="padding: 12px 24px; font-size: 14px;">Close Comparison</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Cart Drawer -->
-    <div id="cartBackdrop" class="cart-backdrop"></div>
-    <aside id="cartDrawer" class="cart-drawer">
-      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 16px; margin-bottom: 20px;">
-        <h2 style="font-size: 18px; font-weight: 800; color: #fff;">🛒 Your Cyber Cart</h2>
-        <button type="button" id="closeCartBtn" style="background: transparent; border: none; color: var(--text-muted); font-size: 20px; cursor: pointer;">✕</button>
-      </div>
-
-      <div id="cartItemsList" style="flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 16px;">
-        <div style="display: flex; gap: 12px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 10px; align-items: center;">
-          <img id="cartItemImg" src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&auto=format&fit=crop&q=80" width="50" height="50" style="object-fit: cover; border-radius: 6px;" />
-          <div style="flex: 1;">
-            <strong id="cartItemTitle" style="font-size: 13px; color: #fff; display: block;">Nexus Apex Pro (Cyber Onyx + Cyber Cyan LED)</strong>
-            <span id="cartItemPrice" style="font-size: 13px; color: var(--accent-cyan); font-weight: 700;">$349.99</span>
-          </div>
-          <div style="display: flex; align-items: center; gap: 6px;">
-            <button type="button" id="qtyMinus" style="background: rgba(255,255,255,0.1); border: none; color: #fff; width: 24px; height: 24px; border-radius: 4px; cursor: pointer;">-</button>
-            <span id="qtyVal" style="font-size: 13px; font-weight: 700;">1</span>
-            <button type="button" id="qtyPlus" style="background: rgba(255,255,255,0.1); border: none; color: #fff; width: 24px; height: 24px; border-radius: 4px; cursor: pointer;">+</button>
-          </div>
-        </div>
-      </div>
-
-      <div style="margin-top: 16px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 16px;">
-        <div style="display: flex; gap: 8px; margin-bottom: 12px;">
-          <input type="text" id="promoInput" placeholder="Promo Code (QWIK15)" style="flex: 1; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #fff; padding: 8px 12px; border-radius: 6px; font-size: 13px; outline: none;" />
-          <button type="button" id="applyPromoBtn" class="variant-btn">Apply</button>
-        </div>
-
-        <div style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: var(--text-muted);">
-          <div style="display: flex; justify-content: space-between;">
-            <span>Subtotal:</span>
-            <strong id="cartSubtotal" style="color: #fff;">$349.99</strong>
-          </div>
-          <div id="discountRow" style="display: none; justify-content: space-between; color: #10b981;">
-            <span>Discount (QWIK15):</span>
-            <strong id="cartDiscount">-$52.50</strong>
-          </div>
-          <div style="display: flex; justify-content: space-between;">
-            <span>Shipping:</span>
-            <strong style="color: #fff;">FREE</strong>
-          </div>
-          <div style="display: flex; justify-content: space-between; font-size: 16px; font-weight: 800; color: #fff; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 8px; margin-top: 4px;">
-            <span>Total:</span>
-            <span id="cartTotal" style="color: var(--accent-cyan);">$349.99</span>
-          </div>
-        </div>
-
-        <button type="button" class="btn-primary" style="width: 100%; margin-top: 16px;" onclick="alert('Order placed successfully!')">
-          Checkout Instant
-        </button>
-      </div>
-    </aside>
 
     <script>
-      // Compare Modal Toggle
-      const compareModal = document.getElementById('compareModal');
-      const navCompareBtn = document.getElementById('navCompareBtn');
-      const mainCompareBtn = document.getElementById('mainCompareBtn');
-      const closeCompareBtn = document.getElementById('closeCompareBtn');
-      const modalCloseBtn = document.getElementById('modalCloseBtn');
-      const compareStoreAudit = document.getElementById('compareStoreAudit');
+      // EQ Presets Listener
+      const eqBtns = document.querySelectorAll('.eq-preset-btn');
+      const eqPath = document.getElementById('eqPath');
+      const eqNameAudit = document.getElementById('eqNameAudit');
 
-      function openCompare() { compareModal.style.display = 'flex'; if (compareStoreAudit) { compareStoreAudit.innerText = 'OPEN'; compareStoreAudit.style.color = '#10b981'; } }
-      function closeCompare() { compareModal.style.display = 'none'; if (compareStoreAudit) { compareStoreAudit.innerText = 'CLOSED'; compareStoreAudit.style.color = 'var(--text-muted)'; } }
-
-      navCompareBtn?.addEventListener('click', openCompare);
-      mainCompareBtn?.addEventListener('click', openCompare);
-      closeCompareBtn?.addEventListener('click', closeCompare);
-      modalCloseBtn?.addEventListener('click', closeCompare);
-
-      // Multi-Currency Rates
-      const RATES = {
-        USD: { sym: '$', rate: 1.0 },
-        EUR: { sym: '€', rate: 0.92 },
-        GBP: { sym: '£', rate: 0.78 },
-        JPY: { sym: '¥', rate: 155.0 }
-      };
-      let activeCurrency = 'USD';
-
-      const currencySelect = document.getElementById('currencySelect');
-      currencySelect?.addEventListener('change', (e) => {
-        activeCurrency = e.target.value;
-        updateCart();
-      });
-
-      // Audio Visualizer Animation
-      const playAudioBtn = document.getElementById('playAudioBtn');
-      const freqBars = document.querySelectorAll('.freq-bar');
-      let isPlayingAudio = false;
-      let audioTime = 0;
-      let audioInterval = null;
-
-      playAudioBtn?.addEventListener('click', () => {
-        isPlayingAudio = !isPlayingAudio;
-        if (isPlayingAudio) {
-          playAudioBtn.innerText = '⏸ Pause Demo';
-          audioInterval = setInterval(() => {
-            audioTime += 0.1;
-            freqBars.forEach((bar, idx) => {
-              const h = Math.min(100, Math.max(15, 60 + Math.sin(audioTime * 4 + idx * 0.5) * 35));
-              bar.style.height = h + '%';
-              bar.style.background = 'linear-gradient(to top, var(--accent-cyan), var(--accent-magenta))';
-            });
-          }, 100);
-        } else {
-          playAudioBtn.innerText = '▶ Play Sound Demo';
-          clearInterval(audioInterval);
-          freqBars.forEach(bar => bar.style.background = 'rgba(255,255,255,0.15)');
-        }
-      });
-
-      const audioTrackBtns = document.querySelectorAll('.audio-track-btn');
-      audioTrackBtns.forEach(btn => {
+      eqBtns.forEach(btn => {
         btn.addEventListener('click', () => {
-          audioTrackBtns.forEach(b => b.classList.remove('active'));
+          eqBtns.forEach(b => b.classList.remove('active'));
           btn.classList.add('active');
-          document.getElementById('audioTrackDesc').innerText = 'ℹ️ ' + btn.dataset.desc;
+          const gains = btn.dataset.gains.split(',').map(Number);
+          if (eqNameAudit) eqNameAudit.innerText = btn.dataset.name;
+
+          const points = gains.map((g, idx) => {
+            const x = idx * 150;
+            const y = 50 - (g / 12) * 40;
+            return `${x},${y}`;
+          });
+          eqPath.setAttribute('d', `M ${points.join(' L ')}`);
         });
       });
-
-      // Flash Sale Timer
-      let secondsLeft = 14400;
-      setInterval(() => {
-        if (secondsLeft > 0) secondsLeft--;
-        const h = String(Math.floor(secondsLeft / 3600)).padStart(2, '0');
-        const m = String(Math.floor((secondsLeft % 3600) / 60)).padStart(2, '0');
-        const s = String(secondsLeft % 60).padStart(2, '0');
-        const str = h + ':' + m + ':' + s;
-        document.getElementById('countdownLabel').innerText = str;
-      }, 1000);
-
-      // Interactive logic
-      const cartBtn = document.getElementById('cartBtn');
-      const closeCartBtn = document.getElementById('closeCartBtn');
-      const cartDrawer = document.getElementById('cartDrawer');
-      const cartBackdrop = document.getElementById('cartBackdrop');
-      const addToCartBtn = document.getElementById('addToCartBtn');
-      const imageFrame = document.getElementById('imageFrame');
-      const mainImage = document.getElementById('mainImage');
-      const angleBadge = document.getElementById('angleBadge');
-      const spinBtn = document.getElementById('spinBtn');
-
-      let currentAngle = 0;
-      let isDragging = false;
-      let startX = 0;
-      let activeLedName = 'Cyber Cyan';
-
-      imageFrame.addEventListener('mousedown', (e) => { isDragging = true; startX = e.clientX; });
-      window.addEventListener('mousemove', (e) => {
-        if (!isDragging) return;
-        const deltaX = e.clientX - startX;
-        startX = e.clientX;
-        currentAngle = (currentAngle + deltaX * 0.8) % 360;
-        if (currentAngle < 0) currentAngle += 360;
-        mainImage.style.transform = `rotateY(${currentAngle}deg)`;
-        angleBadge.innerText = '🔄 360° Angle: ' + Math.round(currentAngle) + '°';
-      });
-      window.addEventListener('mouseup', () => { isDragging = false; });
-
-      spinBtn.addEventListener('click', () => {
-        currentAngle = (currentAngle + 45) % 360;
-        mainImage.style.transform = `rotateY(${currentAngle}deg)`;
-        angleBadge.innerText = '🔄 360° Angle: ' + Math.round(currentAngle) + '°';
-      });
-
-      const ledBtns = document.querySelectorAll('.led-btn');
-      ledBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-          ledBtns.forEach(b => b.classList.remove('active'));
-          btn.classList.add('active');
-          const hex = btn.dataset.hex;
-          const shadow = btn.dataset.shadow;
-          activeLedName = btn.dataset.name;
-          document.getElementById('selectedLedName').innerText = activeLedName;
-          document.getElementById('selectedLedName').style.color = hex;
-          imageFrame.style.boxShadow = shadow;
-          document.getElementById('ledOverlay').style.background = `radial-gradient(circle at 50% 50%, ${hex}40 0%, transparent 70%)`;
-        });
-      });
-
-      function openCart() { cartDrawer.classList.add('open'); cartBackdrop.classList.add('open'); }
-      function closeCart() { cartDrawer.classList.remove('open'); cartBackdrop.classList.remove('open'); }
-
-      cartBtn?.addEventListener('click', openCart);
-      closeCartBtn?.addEventListener('click', closeCart);
-      cartBackdrop?.addEventListener('click', closeCart);
-      addToCartBtn?.addEventListener('click', openCart);
-
-      const variantBtns = document.querySelectorAll('.variant-btn[data-id]');
-      let qty = 1;
-      let baseUsdPrice = 349.99;
-      let discountRate = 0;
-
-      variantBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-          variantBtns.forEach(b => b.classList.remove('active'));
-          btn.classList.add('active');
-          baseUsdPrice = parseFloat(btn.dataset.price);
-          document.getElementById('mainImage').src = btn.dataset.img;
-          document.getElementById('cartItemImg').src = btn.dataset.img;
-          document.getElementById('selectedVariantName').innerText = btn.dataset.name;
-          document.getElementById('cartItemTitle').innerText = 'Nexus Apex Pro (' + btn.dataset.name + ' + ' + activeLedName + ' LED)';
-          document.getElementById('stockIndicator').innerText = '🔴 Only ' + btn.dataset.stock + ' items left in stock (High Demand!)';
-          document.getElementById('stockBar').style.width = ((parseFloat(btn.dataset.stock) / 25) * 100) + '%';
-          updateCart();
-        });
-      });
-
-      const tabFeatures = document.getElementById('tabFeatures');
-      const tabSpecs = document.getElementById('tabSpecs');
-      const tabReviews = document.getElementById('tabReviews');
-      const contentFeatures = document.getElementById('contentFeatures');
-      const contentSpecs = document.getElementById('contentSpecs');
-      const contentReviews = document.getElementById('contentReviews');
-
-      tabFeatures?.addEventListener('click', () => {
-        [tabFeatures, tabSpecs, tabReviews].forEach(t => t.classList.remove('active'));
-        tabFeatures.classList.add('active');
-        contentFeatures.style.display = 'block';
-        contentSpecs.style.display = 'none';
-        contentReviews.style.display = 'none';
-      });
-      tabSpecs?.addEventListener('click', () => {
-        [tabFeatures, tabSpecs, tabReviews].forEach(t => t.classList.remove('active'));
-        tabSpecs.classList.add('active');
-        contentFeatures.style.display = 'none';
-        contentSpecs.style.display = 'grid';
-        contentReviews.style.display = 'none';
-      });
-      tabReviews?.addEventListener('click', () => {
-        [tabFeatures, tabSpecs, tabReviews].forEach(t => t.classList.remove('active'));
-        tabReviews.classList.add('active');
-        contentFeatures.style.display = 'none';
-        contentSpecs.style.display = 'none';
-        contentReviews.style.display = 'block';
-      });
-
-      document.getElementById('qtyPlus')?.addEventListener('click', () => { qty++; updateCart(); });
-      document.getElementById('qtyMinus')?.addEventListener('click', () => { if (qty > 1) { qty--; updateCart(); } });
-
-      document.getElementById('applyPromoBtn')?.addEventListener('click', () => {
-        const code = document.getElementById('promoInput').value.trim().toUpperCase();
-        if (code === 'QWIK15') { discountRate = 0.15; } else { discountRate = 0; }
-        updateCart();
-      });
-
-      function formatVal(usdVal) {
-        const conf = RATES[activeCurrency] || RATES.USD;
-        const v = usdVal * conf.rate;
-        if (activeCurrency === 'JPY') return conf.sym + Math.round(v).toLocaleString();
-        return conf.sym + v.toFixed(2);
-      }
-
-      function updateCart() {
-        document.getElementById('qtyVal').innerText = qty;
-        document.getElementById('cartBadge').innerText = qty;
-        
-        document.getElementById('currentPrice').innerText = formatVal(baseUsdPrice);
-        document.getElementById('originalPrice').innerText = formatVal(baseUsdPrice * 1.22);
-        document.getElementById('btnPrice').innerText = formatVal(baseUsdPrice);
-        document.getElementById('cartItemPrice').innerText = formatVal(baseUsdPrice);
-
-        const sub = baseUsdPrice * qty;
-        const disc = sub * discountRate;
-        const tot = sub - disc;
-        document.getElementById('cartSubtotal').innerText = formatVal(sub);
-        if (disc > 0) {
-          document.getElementById('discountRow').style.display = 'flex';
-          document.getElementById('cartDiscount').innerText = '-' + formatVal(disc);
-        } else {
-          document.getElementById('discountRow').style.display = 'none';
-        }
-        document.getElementById('cartTotal').innerText = formatVal(tot);
-      }
     </script>
   </body>
 </html>

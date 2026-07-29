@@ -1,6 +1,6 @@
 // src/services/productService.spec.ts
 // Vitest unit tests for Build 49 Product Service.
-// Updated: 2026-07-29 for Iteration 6
+// Updated: 2026-07-29 for Iteration 7
 
 import { describe, it, expect } from 'vitest';
 import {
@@ -13,11 +13,12 @@ import {
   calculateFlashSaleCountdown,
   calculateFrequencyBars,
   convertCurrency,
-  getComparisonModels
+  getComparisonModels,
+  calculateEqCurve
 } from './productService';
 
 describe('productService', () => {
-  it('retrieves valid product catalog data with variants, specs, social purchases, and audio tracks', () => {
+  it('retrieves valid product catalog data with variants, specs, social purchases, audio tracks, and eq presets', () => {
     const data = getProductData();
     expect(data.id).toBe('apex-pro-cyber-v1');
     expect(data.variants.length).toBe(3);
@@ -26,6 +27,16 @@ describe('productService', () => {
     expect(data.ledPresets.length).toBe(5);
     expect(data.socialPurchases.length).toBe(4);
     expect(data.audioTracks.length).toBe(3);
+    expect(data.eqPresets.length).toBe(4);
+  });
+
+  it('calculates SVG path curve coordinates for Equalizer response curves', () => {
+    const flatCurve = calculateEqCurve([0, 0, 0, 0, 0], 600, 120);
+    expect(flatCurve).toContain('M 0,60');
+    expect(flatCurve).toContain('L 600,60');
+
+    const bassCurve = calculateEqCurve([8, 5, 1, 0, 2], 600, 120);
+    expect(bassCurve).not.toEqual(flatCurve);
   });
 
   it('retrieves comparison matrix models comparing Apex Air, Apex Pro, and Apex Studio', () => {
@@ -114,14 +125,14 @@ describe('productService', () => {
     expect(fiveStars.every(r => r.rating >= 5)).toBe(true);
   });
 
-  it('generates serialized resumable state snapshot with 0ms hydration cost and comparison state', () => {
+  it('generates serialized resumable state snapshot with 0ms hydration cost and EQ state', () => {
     const items = [
       { variantId: 'var-cyber-black', name: 'Cyber Onyx', price: 349.99, image: '', quantity: 1 }
     ];
-    const snapshot = getResumableSnapshot(items, 'var-cyber-black', 'led-magenta', 180, 14400, 'tr-bass', 'EUR', true);
+    const snapshot = getResumableSnapshot(items, 'var-cyber-black', 'led-magenta', 180, 14400, 'tr-bass', 'EUR', true, 'eq-bass');
 
     expect(snapshot.hydrationCostMs).toBe(0.0);
-    expect(snapshot.serializedObjectsCount).toBe(8);
+    expect(snapshot.serializedObjectsCount).toBe(9);
     expect(snapshot.payloadSizeBytes).toBeGreaterThan(0);
   });
 });
