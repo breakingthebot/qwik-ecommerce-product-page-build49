@@ -459,7 +459,7 @@ export default component$(() => {
         <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 16px; margin-bottom: 20px;">
           <div>
             <h2 style="font-size: 20px; font-weight: 800; color: #fff; display: flex; align-items: center; gap: 10px;">
-              🎛️ Interactive Sound Profile Equalizer & DSP Curve Customizer
+              🎛️ Interactive Sound Profile Equalizer & DSP Curve Customizer ({selectedEqPreset.name})
             </h2>
             <p style="font-size: 13px; color: var(--text-muted); margin-top: 4px;">
               Customize frequency gains (-12dB to +12dB) across 5 acoustic bands or choose a hardware DSP preset.
@@ -859,6 +859,8 @@ export default component$(() => {
               <img
                 src={selectedVariant.image}
                 alt={selectedVariant.name}
+                width="800"
+                height="600"
                 style={`width: 60%; height: 60%; object-fit: contain; filter: drop-shadow(0 20px 30px rgba(0,0,0,${selectedArLighting.shadowIntensity})); transform: rotateY(${rotationAngle.value}deg);`}
               />
               <span class="image-badge-tag" style="top: 16px; left: 16px;">
@@ -1084,7 +1086,7 @@ export default component$(() => {
               <span>Shipping:</span>
               <strong style="color: #fff;">{totals.formattedShipping}</strong>
             </div>
-            <div style="display: flex; justify-content: space-between; font-size: 16px; font-weight: 800; color: #fff; border-top: 1px solid rgba(255,255,255,0.1); paddingTop: 8px; margin-top: 4px;">
+            <div style="display: flex; justify-content: space-between; font-size: 16px; font-weight: 800; color: #fff; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 8px; margin-top: 4px;">
               <span>Total ({selectedCurrency.value}):</span>
               <span style="color: var(--accent-cyan);">{totals.formattedTotal}</span>
             </div>
