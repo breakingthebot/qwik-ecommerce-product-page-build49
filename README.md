@@ -1,65 +1,26 @@
-# Qwik City App ⚡️
+# Build 49: Qwik E-Commerce Product Page
 
-- [Qwik Docs](https://qwik.dev/)
-- [Discord](https://qwik.dev/chat)
-- [Qwik GitHub](https://github.com/QwikDev/qwik)
-- [@QwikDev](https://twitter.com/QwikDev)
-- [Vite](https://vitejs.dev/)
+[![Vercel Deployment](https://img.shields.io/badge/Vercel-Live%20Demo-000000?style=for-the-badge&logo=vercel)](https://qwik-ecommerce-product-page-build49.vercel.app)
+[![GitHub Repository](https://img.shields.io/badge/GitHub-Repository-181717?style=for-the-badge&logo=github)](https://github.com/breakingthebot/qwik-ecommerce-product-page-build49)
+[![Tests](https://img.shields.io/badge/Vitest-5%20Passed-6E9F18?style=for-the-badge&logo=vitest)](file:///C:/Users/marve/Desktop/AI-286-Builds/Build_49/src/services/productService.spec.ts)
+[![Version](https://img.shields.io/badge/Release-v0.1.0-blue?style=for-the-badge)](file:///C:/Users/marve/Desktop/AI-286-Builds/Build_49/CHANGELOG.md)
 
 ---
 
-## Project Structure
+## 🌟 Overview
 
-This project is using Qwik with [QwikCity](https://qwik.dev/qwikcity/overview/). QwikCity is just an extra set of tools on top of Qwik to make it easier to build a full site, including directory-based routing, layouts, and more.
+**Nexus Cyber E-Commerce** is a high-performance, instant-loading product page powered by **Qwik** (`@builder.io/qwik`). Engineered for zero hydration execution delay, Qwik serializes application state directly into HTML attributes, eliminating JavaScript hydration cost on page load.
 
-Inside your project, you'll see the following directory structure:
+### 🌐 Live Production Demo
+- **Live Vercel Application**: [https://qwik-ecommerce-product-page-build49.vercel.app](https://qwik-ecommerce-product-page-build49.vercel.app)
+- **GitHub Codebase**: [https://github.com/breakingthebot/qwik-ecommerce-product-page-build49](https://github.com/breakingthebot/qwik-ecommerce-product-page-build49)
 
-```
-├── public/
-│   └── ...
-└── src/
-    ├── components/
-    │   └── ...
-    └── routes/
-        └── ...
-```
+---
 
-- `src/routes`: Provides the directory-based routing, which can include a hierarchy of `layout.tsx` layout files, and an `index.tsx` file as the page. Additionally, `index.ts` files are endpoints. Please see the [routing docs](https://qwik.dev/qwikcity/routing/overview/) for more info.
+## 🔥 Key Features
 
-- `src/components`: Recommended directory for components.
-
-- `public`: Any static assets, like images, can be placed in the public directory. Please see the [Vite public directory](https://vitejs.dev/guide/assets.html#the-public-directory) for more info.
-
-## Add Integrations and deployment
-
-Use the `npm run qwik add` command to add additional integrations. Some examples of integrations includes: Cloudflare, Netlify or Express Server, and the [Static Site Generator (SSG)](https://qwik.dev/qwikcity/guides/static-site-generation/).
-
-```shell
-npm run qwik add # or `yarn qwik add`
-```
-
-## Development
-
-Development mode uses [Vite's development server](https://vitejs.dev/). The `dev` command will server-side render (SSR) the output during development.
-
-```shell
-npm start # or `yarn start`
-```
-
-> Note: during dev mode, Vite may request a significant number of `.js` files. This does not represent a Qwik production build.
-
-## Preview
-
-The preview command will create a production build of the client modules, a production build of `src/entry.preview.tsx`, and run a local server. The preview server is only for convenience to preview a production build locally and should not be used as a production server.
-
-```shell
-npm run preview # or `yarn preview`
-```
-
-## Production
-
-The production build will generate client and server modules by running both client and server build commands. The build command will use Typescript to run a type check on the source code.
-
-```shell
-npm run build # or `yarn build`
-```
+- **⚡ Instant Load Resumable State Architecture**: 0ms hydration execution delay via Qwik's fine-grained chunk serialization (`$`).
+- **🎨 Interactive Colorway Variant Picker**: Switch between *Cyber Onyx*, *Neon Cyberpunk*, and *Solar Alpine* with dynamic price and stock reactivity.
+- **🛒 Resumable Cart Drawer**: Slide-out cart drawer with item quantity modifiers, promo code discount engine (`QWIK15`), and instant total calculations.
+- **📊 Real-Time Resumability Audit Banner**: Live metrics displaying hydration execution time (`0.0 ms`), serialized store count, and payload size.
+- **⭐ Customer Reviews & Spec Accordion**: Star rating filter and detailed technical specification breakdown.
