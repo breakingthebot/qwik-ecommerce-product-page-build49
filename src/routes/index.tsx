@@ -1,4 +1,4 @@
-import { component$, useStore, useSignal, $ } from '@builder.io/qwik';
+import { component$, useStore, useSignal, $, useVisibleTask$ } from '@builder.io/qwik';
 import type { DocumentHead } from '@builder.io/qwik-city';
 import {
   getProductData,
@@ -7,6 +7,7 @@ import {
   filterReviews,
   getResumableSnapshot,
   calculate360Rotation,
+  calculateFlashSaleCountdown,
   type CartItem
 } from '../services/productService';
 
@@ -18,11 +19,37 @@ export default component$(() => {
   const selectedLedId = useSignal(product.ledPresets[0].id);
   const rotationAngle = useSignal<number>(0);
   const isAutoSpinning = useSignal<boolean>(false);
+  const flashSaleSeconds = useSignal<number>(14400); // 4 Hours Flash Sale Countdown
+  const activeSocialPurchaseIndex = useSignal<number>(0);
+  const showToast = useSignal<boolean>(true);
   const activeTab = useSignal<'features' | 'specs' | 'reviews'>('features');
   const ratingFilter = useSignal<number>(0);
   const isCartOpen = useSignal(false);
   const promoCodeInput = useSignal('');
   const appliedPromo = useSignal('');
+
+  // Live Timer Task for Flash Sale & Social Proof Toast Rotator
+  // eslint-disable-next-line qwik/no-use-visible-task
+  useVisibleTask$(({ cleanup }) => {
+    const timer = setInterval(() => {
+      if (flashSaleSeconds.value > 0) {
+        flashSaleSeconds.value -= 1;
+      }
+    }, 1000);
+
+    const socialTimer = setInterval(() => {
+      showToast.value = false;
+      setTimeout(() => {
+        activeSocialPurchaseIndex.value = (activeSocialPurchaseIndex.value + 1) % product.socialPurchases.length;
+        showToast.value = true;
+      }, 500);
+    }, 6000);
+
+    cleanup(() => {
+      clearInterval(timer);
+      clearInterval(socialTimer);
+    });
+  });
 
   const cartStore = useStore<{ items: CartItem[] }>({
     items: [
@@ -39,6 +66,8 @@ export default component$(() => {
 
   const selectedVariant = product.variants.find(v => v.id === selectedVariantId.value) || product.variants[0];
   const selectedLed = product.ledPresets.find(l => l.id === selectedLedId.value) || product.ledPresets[0];
+  const countdown = calculateFlashSaleCountdown(flashSaleSeconds.value);
+  const currentSocial = product.socialPurchases[activeSocialPurchaseIndex.value];
 
   // Drag 360 state
   const isDragging = useSignal(false);
@@ -101,16 +130,25 @@ export default component$(() => {
 
   const totals = calculateCartTotals(cartStore.items, appliedPromo.value);
   const filteredReviews = filterReviews(product.reviews, ratingFilter.value);
-  const snapshot = getResumableSnapshot(cartStore.items, selectedVariantId.value, selectedLedId.value, rotationAngle.value);
+  const snapshot = getResumableSnapshot(cartStore.items, selectedVariantId.value, selectedLedId.value, rotationAngle.value, flashSaleSeconds.value);
   const totalCartCount = cartStore.items.reduce((acc, item) => acc + item.quantity, 0);
 
   return (
     <div class="container" style="padding-bottom: 60px;">
+      {/* Flash Sale Countdown Announcement Ticker */}
+      <div style="background: linear-gradient(90deg, var(--accent-magenta), var(--accent-purple)); color: #fff; text-align: center; padding: 10px 16px; border-radius: var(--radius-md); font-weight: 700; font-size: 13px; margin: 16px 0 20px 0; display: flex; align-items: center; justify-content: center; gap: 12px; box-shadow: 0 4px 20px rgba(255, 0, 127, 0.3);">
+        <span>⚡ CYBER FLASH SALE ENDS IN:</span>
+        <span style="background: rgba(0, 0, 0, 0.4); padding: 4px 10px; border-radius: 6px; font-family: monospace; font-size: 15px; color: var(--accent-cyan);">
+          {countdown.formatted}
+        </span>
+        <span>• Use Code <strong style="color: var(--accent-cyan);">QWIK15</strong> for 15% OFF</span>
+      </div>
+
       {/* Header Navbar */}
       <header class="navbar">
         <a href="#" class="brand-logo">
           ⚡ NEXUS<span style="color: var(--accent-cyan);">CYBER</span>
-          <span class="brand-badge">Qwik 360° Customizer</span>
+          <span class="brand-badge">Qwik Live Engine</span>
         </a>
         <div class="nav-actions">
           <button
@@ -190,7 +228,7 @@ export default component$(() => {
           </div>
         </div>
 
-        {/* Product Purchase & LED Controls */}
+        {/* Product Purchase & Live Stock Controls */}
         <div class="product-details">
           <div>
             <h1 class="product-title">{product.title}</h1>
@@ -208,8 +246,20 @@ export default component$(() => {
             <span class="current-price">{formatCurrency(selectedVariant.price)}</span>
             <span class="original-price">{formatCurrency(selectedVariant.originalPrice)}</span>
             <span class="stock-indicator">
-              🟢 {selectedVariant.stock} items in stock (Ready for Instant Dispatch)
+              🔴 Only {selectedVariant.stock} items left in stock (High Demand!)
             </span>
+          </div>
+
+          {/* Live Inventory Bar */}
+          <div style="background: rgba(255,255,255,0.05); border-radius: 6px; height: 8px; overflow: hidden; margin-top: -10px;">
+            <div
+              style={{
+                width: `${(selectedVariant.stock / 25) * 100}%`,
+                height: '100%',
+                background: 'linear-gradient(90deg, #ff007f, #f59e0b)',
+                transition: 'width 0.4s ease'
+              }}
+            ></div>
           </div>
 
           {/* Colorway / Variant Selector */}
@@ -265,12 +315,27 @@ export default component$(() => {
         </div>
       </main>
 
+      {/* Social Proof Live Purchase Toast Popup */}
+      {showToast.value && currentSocial && (
+        <div style="position: fixed; bottom: 20px; left: 20px; z-index: 150; background: rgba(15, 23, 42, 0.95); border: 1px solid var(--accent-cyan); border-radius: 12px; padding: 12px 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.6); backdrop-filter: blur(12px); display: flex; align-items: center; gap: 12px; transition: opacity 0.3s ease;">
+          <span style="font-size: 24px;">🔥</span>
+          <div>
+            <div style="font-size: 13px; font-weight: 700; color: #fff;">
+              Someone in <span style="color: var(--accent-cyan);">{currentSocial.location}</span>
+            </div>
+            <div style="font-size: 11px; color: var(--text-muted);">
+              Purchased <strong>{currentSocial.variantName}</strong> • {currentSocial.timeAgo}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Instant Qwik Resumability State Audit Banner */}
       <section class="resumability-card">
         <div class="resumability-header">
           <div>
             <h2 style="font-size: 18px; font-weight: 800; color: var(--accent-cyan);">
-              ⚡ Qwik Resumable State Engine Audit (360° + LED Engine)
+              ⚡ Qwik Resumable State Engine Audit (Flash Sale + Live Stock)
             </h2>
             <p style="font-size: 13px; color: var(--text-muted); margin-top: 4px;">
               Zero Hydration Delay — HTML contains pre-serialized application state without downloading JS hydration bundles!
@@ -295,8 +360,8 @@ export default component$(() => {
             <div style="font-size: 11px; color: var(--text-muted);">Resumable JSON Payload</div>
           </div>
           <div style="background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; padding: 10px;">
-            <div style="font-size: 18px; font-weight: 700; color: selectedLed.hex;">{selectedLed.name}</div>
-            <div style="font-size: 11px; color: var(--text-muted);">Active LED Accent Store</div>
+            <div style="font-size: 18px; font-weight: 700; color: var(--accent-magenta);">{countdown.formatted}</div>
+            <div style="font-size: 11px; color: var(--text-muted);">Live Flash Countdown</div>
           </div>
         </div>
       </section>
@@ -472,11 +537,11 @@ export default component$(() => {
 });
 
 export const head: DocumentHead = {
-  title: 'Nexus Apex Pro Wireless ANC Headphones | Qwik E-Commerce',
+  title: 'Nexus Apex Pro Wireless ANC Headphones | Qwik Flash Sale',
   meta: [
     {
       name: 'description',
-      content: 'Instant load, resumable state Qwik E-commerce product page with 360-degree rotator and LED customizer.'
+      content: 'Instant load, resumable state Qwik E-commerce product page with real-time flash sale countdown and live stock counter.'
     }
   ]
 };

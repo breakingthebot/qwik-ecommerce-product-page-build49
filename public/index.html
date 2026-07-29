@@ -2,9 +2,9 @@
 <html lang="en" q:container="paused" q:slot="disabled" q:version="1.20.0">
   <head>
     <meta charset="utf-8" />
-    <title>Nexus Apex Pro Wireless ANC Headphones | Qwik 360° Customizer</title>
+    <title>Nexus Apex Pro Wireless ANC Headphones | Qwik Flash Sale</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Instant load, resumable state Qwik E-commerce product page with 360-degree interactive rotator and LED customizer." />
+    <meta name="description" content="Instant load, resumable state Qwik E-commerce product page with real-time flash sale countdown and live stock counter." />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <style>
       :root {
@@ -72,10 +72,17 @@
   </head>
   <body>
     <div class="container">
+      <!-- Flash Sale Ticker Banner -->
+      <div style="background: linear-gradient(90deg, var(--accent-magenta), var(--accent-purple)); color: #fff; text-align: center; padding: 10px 16px; border-radius: var(--radius-md); font-weight: 700; font-size: 13px; margin: 16px 0 20px 0; display: flex; align-items: center; justify-content: center; gap: 12px; box-shadow: 0 4px 20px rgba(255, 0, 127, 0.3);">
+        <span>⚡ CYBER FLASH SALE ENDS IN:</span>
+        <span id="countdownLabel" style="background: rgba(0, 0, 0, 0.4); padding: 4px 10px; border-radius: 6px; font-family: monospace; font-size: 15px; color: var(--accent-cyan);">03:59:52</span>
+        <span>• Use Code <strong style="color: var(--accent-cyan);">QWIK15</strong> for 15% OFF</span>
+      </div>
+
       <header class="navbar">
         <a href="#" class="brand-logo">
           ⚡ NEXUS<span style="color: var(--accent-cyan);">CYBER</span>
-          <span class="brand-badge">Qwik 360° Customizer</span>
+          <span class="brand-badge">Qwik Live Engine</span>
         </a>
         <div class="nav-actions">
           <button type="button" id="cartBtn" class="cart-icon-btn">
@@ -115,7 +122,12 @@
           <div class="price-row">
             <span id="currentPrice" class="current-price">$349.99</span>
             <span id="originalPrice" class="original-price">$429.99</span>
-            <span id="stockIndicator" class="stock-indicator">🟢 14 items in stock (Ready for Instant Dispatch)</span>
+            <span id="stockIndicator" class="stock-indicator">🔴 Only 14 items left in stock (High Demand!)</span>
+          </div>
+
+          <!-- Live Stock Bar -->
+          <div style="background: rgba(255,255,255,0.05); border-radius: 6px; height: 8px; overflow: hidden; margin-top: -10px;">
+            <div id="stockBar" style="width: 56%; height: 100%; background: linear-gradient(90deg, #ff007f, #f59e0b); transition: width 0.4s ease;"></div>
           </div>
 
           <div class="variant-section">
@@ -163,10 +175,23 @@
         </div>
       </main>
 
+      <!-- Social Proof Toast Popup -->
+      <div id="socialToast" style="position: fixed; bottom: 20px; left: 20px; z-index: 150; background: rgba(15, 23, 42, 0.95); border: 1px solid var(--accent-cyan); border-radius: 12px; padding: 12px 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.6); backdrop-filter: blur(12px); display: flex; align-items: center; gap: 12px;">
+        <span style="font-size: 24px;">🔥</span>
+        <div>
+          <div style="font-size: 13px; font-weight: 700; color: #fff;">
+            Someone in <span style="color: var(--accent-cyan);" id="toastLoc">Tokyo, Japan 🇯🇵</span>
+          </div>
+          <div style="font-size: 11px; color: var(--text-muted);">
+            Purchased <strong id="toastVariant">Neon Cyberpunk</strong> • <span id="toastTime">2 mins ago</span>
+          </div>
+        </div>
+      </div>
+
       <section class="resumability-card">
         <div class="resumability-header">
           <div>
-            <h2 style="font-size: 18px; font-weight: 800; color: var(--accent-cyan);">⚡ Qwik Resumable State Engine Audit (360° + LED Engine)</h2>
+            <h2 style="font-size: 18px; font-weight: 800; color: var(--accent-cyan);">⚡ Qwik Resumable State Engine Audit (Flash Sale + Live Stock)</h2>
             <p style="font-size: 13px; color: var(--text-muted); margin-top: 4px;">Zero Hydration Delay — HTML contains pre-serialized application state without downloading JS hydration bundles!</p>
           </div>
           <span class="brand-badge" style="background: rgba(0, 246, 255, 0.2); color: var(--accent-cyan); border: 1px solid var(--accent-cyan);">0.0 ms Hydration Delay</span>
@@ -178,16 +203,16 @@
             <div style="font-size: 11px; color: var(--text-muted);">Hydration Execution Time</div>
           </div>
           <div style="background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; padding: 10px;">
-            <div id="serializedStoresCount" style="font-size: 18px; font-weight: 700; color: var(--accent-cyan);">4</div>
+            <div id="serializedStoresCount" style="font-size: 18px; font-weight: 700; color: var(--accent-cyan);">5</div>
             <div style="font-size: 11px; color: var(--text-muted);">Serialized Qwik Stores</div>
           </div>
           <div style="background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; padding: 10px;">
-            <div id="payloadSizeLabel" style="font-size: 18px; font-weight: 700; color: var(--accent-purple);">228 B</div>
+            <div id="payloadSizeLabel" style="font-size: 18px; font-weight: 700; color: var(--accent-purple);">264 B</div>
             <div style="font-size: 11px; color: var(--text-muted);">Resumable JSON Payload</div>
           </div>
           <div style="background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; padding: 10px;">
-            <div id="activeVariantLabel" style="font-size: 18px; font-weight: 700; color: #00f6ff;">Cyber Cyan</div>
-            <div style="font-size: 11px; color: var(--text-muted);">Active LED Accent Store</div>
+            <div id="countdownAudit" style="font-size: 18px; font-weight: 700; color: var(--accent-magenta);">03:59:52</div>
+            <div style="font-size: 11px; color: var(--text-muted);">Live Flash Countdown</div>
           </div>
         </div>
       </section>
@@ -305,6 +330,32 @@
     </aside>
 
     <script>
+      // Flash Sale Timer
+      let secondsLeft = 14400;
+      setInterval(() => {
+        if (secondsLeft > 0) secondsLeft--;
+        const h = String(Math.floor(secondsLeft / 3600)).padStart(2, '0');
+        const m = String(Math.floor((secondsLeft % 3600) / 60)).padStart(2, '0');
+        const s = String(secondsLeft % 60).padStart(2, '0');
+        const str = h + ':' + m + ':' + s;
+        document.getElementById('countdownLabel').innerText = str;
+        document.getElementById('countdownAudit').innerText = str;
+      }, 1000);
+
+      // Social Proof Toasts
+      const socials = [
+        { loc: 'Tokyo, Japan 🇯🇵', variant: 'Neon Cyberpunk', time: '2 mins ago' },
+        { loc: 'Berlin, Germany 🇩🇪', variant: 'Cyber Onyx', time: '6 mins ago' },
+        { loc: 'San Francisco, USA 🇺🇸', variant: 'Solar Alpine', time: '12 mins ago' }
+      ];
+      let socialIdx = 0;
+      setInterval(() => {
+        socialIdx = (socialIdx + 1) % socials.length;
+        document.getElementById('toastLoc').innerText = socials[socialIdx].loc;
+        document.getElementById('toastVariant').innerText = socials[socialIdx].variant;
+        document.getElementById('toastTime').innerText = socials[socialIdx].time;
+      }, 6000);
+
       // Interactive logic
       const cartBtn = document.getElementById('cartBtn');
       const closeCartBtn = document.getElementById('closeCartBtn');
@@ -321,11 +372,7 @@
       let startX = 0;
       let activeLedName = 'Cyber Cyan';
 
-      // 360 Drag
-      imageFrame.addEventListener('mousedown', (e) => {
-        isDragging = true;
-        startX = e.clientX;
-      });
+      imageFrame.addEventListener('mousedown', (e) => { isDragging = true; startX = e.clientX; });
       window.addEventListener('mousemove', (e) => {
         if (!isDragging) return;
         const deltaX = e.clientX - startX;
@@ -343,7 +390,6 @@
         angleBadge.innerText = '🔄 360° Angle: ' + Math.round(currentAngle) + '°';
       });
 
-      // LED Accent Customizer
       const ledBtns = document.querySelectorAll('.led-btn');
       ledBtns.forEach(btn => {
         btn.addEventListener('click', () => {
@@ -369,7 +415,6 @@
       cartBackdrop?.addEventListener('click', closeCart);
       addToCartBtn?.addEventListener('click', openCart);
 
-      // Variants
       const variantBtns = document.querySelectorAll('.variant-btn[data-id]');
       let qty = 1;
       let price = 349.99;
@@ -388,12 +433,12 @@
           document.getElementById('selectedVariantName').innerText = btn.dataset.name;
           document.getElementById('cartItemTitle').innerText = 'Nexus Apex Pro (' + btn.dataset.name + ' + ' + activeLedName + ' LED)';
           document.getElementById('cartItemPrice').innerText = '$' + price.toFixed(2);
-          document.getElementById('stockIndicator').innerText = '🟢 ' + btn.dataset.stock + ' items in stock (Ready for Instant Dispatch)';
+          document.getElementById('stockIndicator').innerText = '🔴 Only ' + btn.dataset.stock + ' items left in stock (High Demand!)';
+          document.getElementById('stockBar').style.width = ((parseFloat(btn.dataset.stock) / 25) * 100) + '%';
           updateCart();
         });
       });
 
-      // Tabs
       const tabFeatures = document.getElementById('tabFeatures');
       const tabSpecs = document.getElementById('tabSpecs');
       const tabReviews = document.getElementById('tabReviews');
@@ -423,11 +468,9 @@
         contentReviews.style.display = 'block';
       });
 
-      // Qty
       document.getElementById('qtyPlus')?.addEventListener('click', () => { qty++; updateCart(); });
       document.getElementById('qtyMinus')?.addEventListener('click', () => { if (qty > 1) { qty--; updateCart(); } });
 
-      // Promo
       document.getElementById('applyPromoBtn')?.addEventListener('click', () => {
         const code = document.getElementById('promoInput').value.trim().toUpperCase();
         if (code === 'QWIK15') { discountRate = 0.15; } else { discountRate = 0; }

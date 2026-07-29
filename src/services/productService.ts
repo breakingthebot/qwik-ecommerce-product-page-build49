@@ -1,6 +1,6 @@
 // src/services/productService.ts
 // Business Logic & Product Engine for Build 49 - Qwik E-Commerce Product Page.
-// Updated: 2026-07-29 for Iteration 2 (360-Degree 3D Rotator & LED Customizer)
+// Updated: 2026-07-29 for Iteration 3 (Real-Time Live Stock & Flash Sale Countdown Engine)
 
 export interface ProductVariant {
   id: string;
@@ -40,6 +40,13 @@ export interface LedPreset {
   glowShadow: string;
 }
 
+export interface SocialProofPurchase {
+  id: string;
+  location: string;
+  variantName: string;
+  timeAgo: string;
+}
+
 export interface ProductData {
   id: string;
   title: string;
@@ -52,6 +59,7 @@ export interface ProductData {
   specs: Record<string, string>;
   reviews: ProductReview[];
   ledPresets: LedPreset[];
+  socialPurchases: SocialProofPurchase[];
 }
 
 /**
@@ -103,6 +111,12 @@ export function getProductData(): ProductData {
       { id: 'led-emerald', name: 'Matrix Emerald', hex: '#10b981', glowShadow: '0 0 25px rgba(16, 185, 129, 0.8)' },
       { id: 'led-purple', name: 'Plasma Violet', hex: '#a855f7', glowShadow: '0 0 25px rgba(168, 85, 247, 0.8)' }
     ],
+    socialPurchases: [
+      { id: 'sp-1', location: 'Tokyo, Japan 🇯🇵', variantName: 'Neon Cyberpunk', timeAgo: '2 mins ago' },
+      { id: 'sp-2', location: 'Berlin, Germany 🇩🇪', variantName: 'Cyber Onyx', timeAgo: '6 mins ago' },
+      { id: 'sp-3', location: 'San Francisco, USA 🇺🇸', variantName: 'Solar Alpine', timeAgo: '12 mins ago' },
+      { id: 'sp-4', location: 'London, UK 🇬🇧', variantName: 'Neon Cyberpunk', timeAgo: '18 mins ago' }
+    ],
     features: [
       '⚡ Qwik Instant Load Resumable State Architecture (0ms Hydration Delay)',
       '🎧 50mm Custom Planar Magnetic Drivers with Sub-Bass Boost',
@@ -151,6 +165,36 @@ export function getProductData(): ProductData {
         verified: true
       }
     ]
+  };
+}
+
+/**
+ * Calculates remaining Flash Sale time format (HH:MM:SS) from target seconds.
+ */
+export function calculateFlashSaleCountdown(totalSeconds: number): {
+  hours: string;
+  minutes: string;
+  seconds: string;
+  formatted: string;
+  isExpired: boolean;
+} {
+  if (totalSeconds <= 0) {
+    return { hours: '00', minutes: '00', seconds: '00', formatted: '00:00:00', isExpired: true };
+  }
+  const h = Math.floor(totalSeconds / 3600);
+  const m = Math.floor((totalSeconds % 3600) / 60);
+  const s = totalSeconds % 60;
+
+  const hoursStr = h.toString().padStart(2, '0');
+  const minutesStr = m.toString().padStart(2, '0');
+  const secondsStr = s.toString().padStart(2, '0');
+
+  return {
+    hours: hoursStr,
+    minutes: minutesStr,
+    seconds: secondsStr,
+    formatted: `${hoursStr}:${minutesStr}:${secondsStr}`,
+    isExpired: false
   };
 }
 
@@ -230,15 +274,15 @@ export function filterReviews(reviews: ProductReview[], minRating = 0): ProductR
 /**
  * Generates serialized resumable state metadata snapshot.
  */
-export function getResumableSnapshot(cartItems: CartItem[], selectedVariantId: string, ledColor = 'led-cyan', rotationAngle = 0): {
+export function getResumableSnapshot(cartItems: CartItem[], selectedVariantId: string, ledColor = 'led-cyan', rotationAngle = 0, flashSaleSeconds = 14400): {
   serializedObjectsCount: number;
   resumabilityKey: string;
   hydrationCostMs: number;
   payloadSizeBytes: number;
 } {
-  const payload = JSON.stringify({ cartItems, selectedVariantId, ledColor, rotationAngle });
+  const payload = JSON.stringify({ cartItems, selectedVariantId, ledColor, rotationAngle, flashSaleSeconds });
   return {
-    serializedObjectsCount: cartItems.length + 3,
+    serializedObjectsCount: cartItems.length + 4,
     resumabilityKey: `qwik:store:${Date.now().toString(36)}`,
     hydrationCostMs: 0.0, // Qwik zero hydration delay
     payloadSizeBytes: new Blob([payload]).size

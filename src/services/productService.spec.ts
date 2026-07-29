@@ -1,6 +1,6 @@
 // src/services/productService.spec.ts
 // Vitest unit tests for Build 49 Product Service.
-// Updated: 2026-07-29 for Iteration 2
+// Updated: 2026-07-29 for Iteration 3
 
 import { describe, it, expect } from 'vitest';
 import {
@@ -9,17 +9,32 @@ import {
   formatCurrency,
   filterReviews,
   getResumableSnapshot,
-  calculate360Rotation
+  calculate360Rotation,
+  calculateFlashSaleCountdown
 } from './productService';
 
 describe('productService', () => {
-  it('retrieves valid product catalog data with variants and specs', () => {
+  it('retrieves valid product catalog data with variants, specs, and social purchases', () => {
     const data = getProductData();
     expect(data.id).toBe('apex-pro-cyber-v1');
     expect(data.variants.length).toBe(3);
     expect(data.specs['Driver Size']).toBeDefined();
     expect(data.reviews.length).toBeGreaterThan(0);
     expect(data.ledPresets.length).toBe(5);
+    expect(data.socialPurchases.length).toBe(4);
+  });
+
+  it('calculates Flash Sale countdown time formats correctly', () => {
+    const timer1 = calculateFlashSaleCountdown(3665); // 1 hr, 1 min, 5 sec
+    expect(timer1.hours).toBe('01');
+    expect(timer1.minutes).toBe('01');
+    expect(timer1.seconds).toBe('05');
+    expect(timer1.formatted).toBe('01:01:05');
+    expect(timer1.isExpired).toBe(false);
+
+    const expired = calculateFlashSaleCountdown(0);
+    expect(expired.isExpired).toBe(true);
+    expect(expired.formatted).toBe('00:00:00');
   });
 
   it('calculates 360-degree rotation angles and frame indices from drag delta', () => {
@@ -63,14 +78,14 @@ describe('productService', () => {
     expect(fiveStars.every(r => r.rating >= 5)).toBe(true);
   });
 
-  it('generates serialized resumable state snapshot with 0ms hydration cost and LED state', () => {
+  it('generates serialized resumable state snapshot with 0ms hydration cost and Flash Sale state', () => {
     const items = [
       { variantId: 'var-cyber-black', name: 'Cyber Onyx', price: 349.99, image: '', quantity: 1 }
     ];
-    const snapshot = getResumableSnapshot(items, 'var-cyber-black', 'led-magenta', 180);
+    const snapshot = getResumableSnapshot(items, 'var-cyber-black', 'led-magenta', 180, 14400);
 
     expect(snapshot.hydrationCostMs).toBe(0.0);
-    expect(snapshot.serializedObjectsCount).toBe(4);
+    expect(snapshot.serializedObjectsCount).toBe(5);
     expect(snapshot.payloadSizeBytes).toBeGreaterThan(0);
   });
 });
