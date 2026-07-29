@@ -1,6 +1,6 @@
 // src/services/productService.ts
 // Business Logic & Product Engine for Build 49 - Qwik E-Commerce Product Page.
-// Updated: 2026-07-29 for Iteration 5 (Qwik Persistent Cart LocalStorage Syncer & Multi-Currency Switcher)
+// Updated: 2026-07-29 for Iteration 6 (Qwik Product Comparison Matrix Drawer)
 
 export interface ProductVariant {
   id: string;
@@ -54,6 +54,20 @@ export interface AudioDemoTrack {
   durationSec: number;
   waveformPeaks: number[];
   description: string;
+}
+
+export interface ComparisonModel {
+  id: string;
+  name: string;
+  tagline: string;
+  priceUSD: number;
+  driver: string;
+  frequency: string;
+  ancLevel: string;
+  battery: string;
+  weight: string;
+  latency: string;
+  isCurrentProduct?: boolean;
 }
 
 export type CurrencyCode = 'USD' | 'EUR' | 'GBP' | 'JPY';
@@ -220,6 +234,53 @@ export function getProductData(): ProductData {
 }
 
 /**
+ * Returns list of Nexus headphone models for side-by-side comparison.
+ */
+export function getComparisonModels(): ComparisonModel[] {
+  return [
+    {
+      id: 'apex-air',
+      name: 'Nexus Apex Air',
+      tagline: 'Lightweight everyday wireless listening',
+      priceUSD: 199.99,
+      driver: '40mm Dynamic Driver',
+      frequency: '20 Hz - 20,000 Hz',
+      ancLevel: '-25dB Standard ANC',
+      battery: '35 Hours',
+      weight: '220g',
+      latency: '45ms',
+      isCurrentProduct: false
+    },
+    {
+      id: 'apex-pro',
+      name: 'Nexus Apex Pro (This Model)',
+      tagline: 'Flagship audiophile planar magnetic + ANC',
+      priceUSD: 349.99,
+      driver: '50mm Planar Magnetic',
+      frequency: '5 Hz - 48,000 Hz',
+      ancLevel: '-45dB Hybrid Dual-Mic ANC',
+      battery: '65 Hours',
+      weight: '285g',
+      latency: '15ms Ultra-Low',
+      isCurrentProduct: true
+    },
+    {
+      id: 'apex-studio',
+      name: 'Nexus Apex Studio Master',
+      tagline: 'Reference studio mastering grade wireless',
+      priceUSD: 599.99,
+      driver: '60mm Beryllium Planar Driver',
+      frequency: '2 Hz - 96,000 Hz',
+      ancLevel: '-50dB Adaptive AI ANC',
+      battery: '80 Hours',
+      weight: '340g',
+      latency: '8ms Ultra-Zero',
+      isCurrentProduct: false
+    }
+  ];
+}
+
+/**
  * Converts USD price to target currency code and formats symbol.
  */
 export function convertCurrency(usdAmount: number, targetCurrency: CurrencyCode = 'USD'): {
@@ -370,15 +431,15 @@ export function filterReviews(reviews: ProductReview[], minRating = 0): ProductR
 /**
  * Generates serialized resumable state metadata snapshot.
  */
-export function getResumableSnapshot(cartItems: CartItem[], selectedVariantId: string, ledColor = 'led-cyan', rotationAngle = 0, flashSaleSeconds = 14400, activeAudioTrack = 'tr-bass', currency: CurrencyCode = 'USD'): {
+export function getResumableSnapshot(cartItems: CartItem[], selectedVariantId: string, ledColor = 'led-cyan', rotationAngle = 0, flashSaleSeconds = 14400, activeAudioTrack = 'tr-bass', currency: CurrencyCode = 'USD', isCompareOpen = false): {
   serializedObjectsCount: number;
   resumabilityKey: string;
   hydrationCostMs: number;
   payloadSizeBytes: number;
 } {
-  const payload = JSON.stringify({ cartItems, selectedVariantId, ledColor, rotationAngle, flashSaleSeconds, activeAudioTrack, currency });
+  const payload = JSON.stringify({ cartItems, selectedVariantId, ledColor, rotationAngle, flashSaleSeconds, activeAudioTrack, currency, isCompareOpen });
   return {
-    serializedObjectsCount: cartItems.length + 6,
+    serializedObjectsCount: cartItems.length + 7,
     resumabilityKey: `qwik:store:${Date.now().toString(36)}`,
     hydrationCostMs: 0.0, // Qwik zero hydration delay
     payloadSizeBytes: new Blob([payload]).size

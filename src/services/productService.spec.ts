@@ -1,6 +1,6 @@
 // src/services/productService.spec.ts
 // Vitest unit tests for Build 49 Product Service.
-// Updated: 2026-07-29 for Iteration 5
+// Updated: 2026-07-29 for Iteration 6
 
 import { describe, it, expect } from 'vitest';
 import {
@@ -12,7 +12,8 @@ import {
   calculate360Rotation,
   calculateFlashSaleCountdown,
   calculateFrequencyBars,
-  convertCurrency
+  convertCurrency,
+  getComparisonModels
 } from './productService';
 
 describe('productService', () => {
@@ -25,6 +26,14 @@ describe('productService', () => {
     expect(data.ledPresets.length).toBe(5);
     expect(data.socialPurchases.length).toBe(4);
     expect(data.audioTracks.length).toBe(3);
+  });
+
+  it('retrieves comparison matrix models comparing Apex Air, Apex Pro, and Apex Studio', () => {
+    const models = getComparisonModels();
+    expect(models.length).toBe(3);
+    const pro = models.find(m => m.id === 'apex-pro');
+    expect(pro?.isCurrentProduct).toBe(true);
+    expect(pro?.priceUSD).toBe(349.99);
   });
 
   it('converts currencies (USD, EUR, GBP, JPY) with accurate rates and symbols', () => {
@@ -105,14 +114,14 @@ describe('productService', () => {
     expect(fiveStars.every(r => r.rating >= 5)).toBe(true);
   });
 
-  it('generates serialized resumable state snapshot with 0ms hydration cost and multi-currency state', () => {
+  it('generates serialized resumable state snapshot with 0ms hydration cost and comparison state', () => {
     const items = [
       { variantId: 'var-cyber-black', name: 'Cyber Onyx', price: 349.99, image: '', quantity: 1 }
     ];
-    const snapshot = getResumableSnapshot(items, 'var-cyber-black', 'led-magenta', 180, 14400, 'tr-bass', 'EUR');
+    const snapshot = getResumableSnapshot(items, 'var-cyber-black', 'led-magenta', 180, 14400, 'tr-bass', 'EUR', true);
 
     expect(snapshot.hydrationCostMs).toBe(0.0);
-    expect(snapshot.serializedObjectsCount).toBe(7);
+    expect(snapshot.serializedObjectsCount).toBe(8);
     expect(snapshot.payloadSizeBytes).toBeGreaterThan(0);
   });
 });

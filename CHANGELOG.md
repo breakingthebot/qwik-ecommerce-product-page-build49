@@ -5,6 +5,14 @@ All notable changes to **Build 49 (Qwik E-Commerce Product Page)** will be docum
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.0] - 2026-07-29
+
+### Added
+- Integrated **Qwik Product Comparison Matrix Drawer** in `src/services/productService.ts` and `src/routes/index.tsx`.
+- Added `getComparisonModels` data structure comparing *Nexus Apex Air* ($199.99), *Nexus Apex Pro* ($349.99), and *Nexus Apex Studio Master* ($599.99).
+- Added **⚖️ Compare Models** buttons in navbar and main action bar, side-by-side comparison modal drawer overlay (`isCompareOpen`), and multi-currency spec comparison breakdown table.
+- Updated unit tests in `src/services/productService.spec.ts` (10 passing unit tests).
+
 ## [0.5.0] - 2026-07-29
 
 ### Added

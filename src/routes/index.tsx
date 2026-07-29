@@ -9,6 +9,7 @@ import {
   calculate360Rotation,
   calculateFlashSaleCountdown,
   calculateFrequencyBars,
+  getComparisonModels,
   CURRENCIES,
   type CurrencyCode,
   type CartItem
@@ -16,12 +17,14 @@ import {
 
 export default component$(() => {
   const product = getProductData();
+  const comparisonModels = getComparisonModels();
 
   // Qwik Resumable Reactive State
   const selectedVariantId = useSignal(product.variants[0].id);
   const selectedLedId = useSignal(product.ledPresets[0].id);
   const selectedAudioTrackId = useSignal(product.audioTracks[0].id);
   const selectedCurrency = useSignal<CurrencyCode>('USD');
+  const isCompareOpen = useSignal<boolean>(false);
   const isAudioPlaying = useSignal<boolean>(false);
   const audioTimeOffset = useSignal<number>(0);
 
@@ -68,7 +71,7 @@ export default component$(() => {
       if (savedCurrency && (savedCurrency in CURRENCIES)) {
         selectedCurrency.value = savedCurrency as CurrencyCode;
       }
-    } catch (e) {
+    } catch {
       // LocalStorage fallback
     }
 
@@ -103,7 +106,7 @@ export default component$(() => {
     try {
       localStorage.setItem('nexus_cart_build49', JSON.stringify(cartStore.items));
       localStorage.setItem('nexus_currency_build49', selectedCurrency.value);
-    } catch (e) {
+    } catch {
       // LocalStorage fallback
     }
   });
@@ -176,7 +179,7 @@ export default component$(() => {
 
   const totals = calculateCartTotals(cartStore.items, appliedPromo.value, selectedCurrency.value);
   const filteredReviews = filterReviews(product.reviews, ratingFilter.value);
-  const snapshot = getResumableSnapshot(cartStore.items, selectedVariantId.value, selectedLedId.value, rotationAngle.value, flashSaleSeconds.value, selectedAudioTrackId.value, selectedCurrency.value);
+  const snapshot = getResumableSnapshot(cartStore.items, selectedVariantId.value, selectedLedId.value, rotationAngle.value, flashSaleSeconds.value, selectedAudioTrackId.value, selectedCurrency.value, isCompareOpen.value);
   const totalCartCount = cartStore.items.reduce((acc, item) => acc + item.quantity, 0);
 
   return (
@@ -194,10 +197,19 @@ export default component$(() => {
       <header class="navbar">
         <a href="#" class="brand-logo">
           ⚡ NEXUS<span style="color: var(--accent-cyan);">CYBER</span>
-          <span class="brand-badge">Qwik Persistent Engine</span>
+          <span class="brand-badge">Qwik Matrix Engine</span>
         </a>
 
         <div class="nav-actions" style="display: flex; gap: 12px; align-items: center;">
+          <button
+            type="button"
+            class="variant-btn"
+            style="padding: 8px 14px; font-size: 13px;"
+            onClick$={$(() => isCompareOpen.value = true)}
+          >
+            ⚖️ Compare Models
+          </button>
+
           {/* Multi-Currency Switcher */}
           <select
             value={selectedCurrency.value}
@@ -361,7 +373,7 @@ export default component$(() => {
             </div>
           </div>
 
-          {/* Add to Cart Action Bar */}
+          {/* Add to Cart & Compare Action Bar */}
           <div class="action-buttons">
             <button
               type="button"
@@ -369,6 +381,14 @@ export default component$(() => {
               onClick$={addToCart$}
             >
               🛒 Add to Resumable Cart ({formatCurrency(selectedVariant.price, selectedCurrency.value)})
+            </button>
+            <button
+              type="button"
+              class="variant-btn"
+              style="padding: 16px 20px; font-size: 15px;"
+              onClick$={$(() => isCompareOpen.value = true)}
+            >
+              ⚖️ Compare Specs
             </button>
           </div>
         </div>
@@ -467,7 +487,7 @@ export default component$(() => {
         <div class="resumability-header">
           <div>
             <h2 style="font-size: 18px; font-weight: 800; color: var(--accent-cyan);">
-              ⚡ Qwik Resumable State Engine Audit (Persistent Multi-Currency Engine)
+              ⚡ Qwik Resumable State Engine Audit (Comparison Matrix Engine)
             </h2>
             <p style="font-size: 13px; color: var(--text-muted); margin-top: 4px;">
               Zero Hydration Delay — HTML contains pre-serialized application state without downloading JS hydration bundles!
@@ -492,8 +512,10 @@ export default component$(() => {
             <div style="font-size: 11px; color: var(--text-muted);">Resumable JSON Payload</div>
           </div>
           <div style="background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; padding: 10px;">
-            <div style="font-size: 18px; font-weight: 700; color: #10b981;">{selectedCurrency.value}</div>
-            <div style="font-size: 11px; color: var(--text-muted);">Active Currency Store</div>
+            <div style="font-size: 18px; font-weight: 700; color: isCompareOpen.value ? '#10b981' : 'var(--text-muted)';">
+              {isCompareOpen.value ? 'OPEN' : 'CLOSED'}
+            </div>
+            <div style="font-size: 11px; color: var(--text-muted);">Comparison Drawer Store</div>
           </div>
         </div>
       </section>
@@ -574,6 +596,108 @@ export default component$(() => {
           </div>
         )}
       </section>
+
+      {/* Comparison Matrix Modal Overlay Drawer */}
+      {isCompareOpen.value && (
+        <div style="position: fixed; inset: 0; z-index: 300; background: rgba(0,0,0,0.85); backdrop-filter: blur(12px); display: flex; align-items: center; justify-content: center; padding: 20px;">
+          <div style="background: var(--bg-dark); border: 1px solid var(--accent-cyan); border-radius: var(--radius-lg); width: 100%; max-width: 960px; max-height: 90vh; overflow-y: auto; padding: 28px; box-shadow: 0 0 40px rgba(0, 246, 255, 0.3);">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 16px; margin-bottom: 24px;">
+              <div>
+                <h2 style="font-size: 22px; font-weight: 800; color: #fff; display: flex; align-items: center; gap: 10px;">
+                  ⚖️ Nexus Headphone Lineup Comparison Matrix
+                </h2>
+                <p style="font-size: 13px; color: var(--text-muted); margin-top: 4px;">
+                  Side-by-side specification breakdown across Apex Air, Apex Pro, and Apex Studio models.
+                </p>
+              </div>
+              <button
+                type="button"
+                style="background: transparent; border: none; color: var(--text-muted); font-size: 24px; cursor: pointer;"
+                onClick$={$(() => isCompareOpen.value = false)}
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Matrix Breakdown Table */}
+            <div style="overflow-x: auto;">
+              <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 14px;">
+                <thead>
+                  <tr style="border-bottom: 1px solid rgba(255,255,255,0.15);">
+                    <th style="padding: 12px; color: var(--text-muted);">Feature / Spec</th>
+                    {comparisonModels.map((m) => (
+                      <th
+                        key={m.id}
+                        style={{
+                          padding: '12px',
+                          color: m.isCurrentProduct ? 'var(--accent-cyan)' : '#fff',
+                          background: m.isCurrentProduct ? 'rgba(0, 246, 255, 0.08)' : 'transparent',
+                          borderRadius: '8px 8px 0 0'
+                        }}
+                      >
+                        <div style="font-size: 16px; font-weight: 800;">{m.name}</div>
+                        <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">{m.tagline}</div>
+                        <div style="font-size: 18px; font-weight: 800; color: var(--accent-magenta); margin-top: 6px;">
+                          {formatCurrency(m.priceUSD, selectedCurrency.value)}
+                        </div>
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                    <td style="padding: 12px; font-weight: 700; color: var(--text-muted);">Driver Type</td>
+                    {comparisonModels.map((m) => (
+                      <td key={m.id} style={{ padding: '12px', background: m.isCurrentProduct ? 'rgba(0, 246, 255, 0.08)' : 'transparent' }}>{m.driver}</td>
+                    ))}
+                  </tr>
+                  <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                    <td style="padding: 12px; font-weight: 700; color: var(--text-muted);">Frequency Response</td>
+                    {comparisonModels.map((m) => (
+                      <td key={m.id} style={{ padding: '12px', background: m.isCurrentProduct ? 'rgba(0, 246, 255, 0.08)' : 'transparent' }}>{m.frequency}</td>
+                    ))}
+                  </tr>
+                  <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                    <td style="padding: 12px; font-weight: 700; color: var(--text-muted);">Noise Cancellation</td>
+                    {comparisonModels.map((m) => (
+                      <td key={m.id} style={{ padding: '12px', background: m.isCurrentProduct ? 'rgba(0, 246, 255, 0.08)' : 'transparent' }}>{m.ancLevel}</td>
+                    ))}
+                  </tr>
+                  <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                    <td style="padding: 12px; font-weight: 700; color: var(--text-muted);">Battery Life</td>
+                    {comparisonModels.map((m) => (
+                      <td key={m.id} style={{ padding: '12px', background: m.isCurrentProduct ? 'rgba(0, 246, 255, 0.08)' : 'transparent' }}>{m.battery}</td>
+                    ))}
+                  </tr>
+                  <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                    <td style="padding: 12px; font-weight: 700; color: var(--text-muted);">Weight</td>
+                    {comparisonModels.map((m) => (
+                      <td key={m.id} style={{ padding: '12px', background: m.isCurrentProduct ? 'rgba(0, 246, 255, 0.08)' : 'transparent' }}>{m.weight}</td>
+                    ))}
+                  </tr>
+                  <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                    <td style="padding: 12px; font-weight: 700; color: var(--text-muted);">Wireless Latency</td>
+                    {comparisonModels.map((m) => (
+                      <td key={m.id} style={{ padding: '12px', background: m.isCurrentProduct ? 'rgba(0, 246, 255, 0.08)' : 'transparent' }}>{m.latency}</td>
+                    ))}
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div style="text-align: right; margin-top: 24px;">
+              <button
+                type="button"
+                class="btn-primary"
+                style="padding: 12px 24px; font-size: 14px;"
+                onClick$={$(() => isCompareOpen.value = false)}
+              >
+                Close Comparison
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Cart Drawer Overlay */}
       <div
@@ -669,11 +793,11 @@ export default component$(() => {
 });
 
 export const head: DocumentHead = {
-  title: 'Nexus Apex Pro Wireless ANC Headphones | Qwik Persistent Engine',
+  title: 'Nexus Apex Pro Wireless ANC Headphones | Qwik Matrix Engine',
   meta: [
     {
       name: 'description',
-      content: 'Instant load, resumable state Qwik E-commerce product page with multi-currency switcher and persistent cart sync.'
+      content: 'Instant load, resumable state Qwik E-commerce product page with product comparison matrix drawer.'
     }
   ]
 };
