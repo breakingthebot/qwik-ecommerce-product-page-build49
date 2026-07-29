@@ -1,12 +1,376 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" q:container="paused" q:slot="disabled" q:version="1.20.0">
   <head>
     <meta charset="utf-8" />
     <title>Nexus Apex Pro Wireless ANC Headphones | Qwik E-Commerce</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Instant load, resumable state Qwik E-commerce product page with zero hydration delay." />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <style>
+      :root {
+        --bg-dark: #070913;
+        --bg-card: rgba(15, 23, 42, 0.75);
+        --bg-card-hover: rgba(30, 41, 59, 0.85);
+        --border-glow: rgba(139, 92, 246, 0.25);
+        --accent-cyan: #00f6ff;
+        --accent-magenta: #ff007f;
+        --accent-purple: #8b5cf6;
+        --text-main: #f8fafc;
+        --text-muted: #94a3b8;
+        --radius-lg: 16px;
+        --radius-md: 10px;
+        --font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      }
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      body {
+        background-color: var(--bg-dark);
+        background-image: 
+          radial-gradient(at 0% 0%, rgba(139, 92, 246, 0.15) 0px, transparent 50%),
+          radial-gradient(at 100% 100%, rgba(0, 246, 255, 0.15) 0px, transparent 50%);
+        color: var(--text-main);
+        font-family: var(--font-family);
+        min-height: 100vh;
+        line-height: 1.5;
+        padding-bottom: 60px;
+      }
+      .container { max-width: 1280px; margin: 0 auto; padding: 0 20px; }
+      .navbar { display: flex; align-items: center; justify-content: space-between; padding: 20px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.1); margin-bottom: 32px; }
+      .brand-logo { font-size: 20px; font-weight: 800; color: #fff; text-decoration: none; display: flex; align-items: center; gap: 10px; }
+      .brand-badge { background: linear-gradient(135deg, var(--accent-magenta), var(--accent-purple)); color: #fff; font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 6px; text-transform: uppercase; }
+      .cart-icon-btn { background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border-glow); color: var(--text-main); padding: 10px 16px; border-radius: var(--radius-md); font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; }
+      .cart-badge { background: var(--accent-magenta); color: #fff; border-radius: 50%; width: 20px; height: 20px; font-size: 11px; display: flex; align-items: center; justify-content: center; font-weight: 700; }
+      .product-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-bottom: 48px; }
+      @media (max-width: 900px) { .product-grid { grid-template-columns: 1fr; } }
+      .main-image-frame { position: relative; background: var(--bg-card); border: 1px solid var(--border-glow); border-radius: var(--radius-lg); overflow: hidden; aspect-ratio: 4/3; display: flex; align-items: center; justify-content: center; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5); }
+      .main-image-frame img { width: 100%; height: 100%; object-fit: cover; }
+      .image-badge-tag { position: absolute; top: 16px; left: 16px; background: rgba(0, 246, 255, 0.15); border: 1px solid var(--accent-cyan); color: var(--accent-cyan); font-size: 12px; font-weight: 700; padding: 6px 12px; border-radius: 20px; }
+      .product-details { display: flex; flex-direction: column; gap: 20px; }
+      .product-title { font-size: 32px; font-weight: 800; line-height: 1.2; }
+      .product-tagline { color: var(--text-muted); font-size: 15px; }
+      .rating-row { display: flex; align-items: center; gap: 10px; font-size: 14px; color: var(--text-muted); }
+      .stars { color: #f59e0b; }
+      .price-row { display: flex; align-items: baseline; gap: 14px; }
+      .current-price { font-size: 36px; font-weight: 800; color: #fff; }
+      .original-price { font-size: 20px; color: var(--text-muted); text-decoration: line-through; }
+      .stock-indicator { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; color: #10b981; }
+      .variant-section { display: flex; flex-direction: column; gap: 10px; }
+      .variant-label { font-size: 13px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; }
+      .variant-options { display: flex; gap: 12px; }
+      .variant-btn { background: var(--bg-card); border: 1px solid var(--border-glow); color: var(--text-main); padding: 10px 16px; border-radius: var(--radius-md); cursor: pointer; display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; transition: all 0.2s ease; }
+      .variant-btn.active { border-color: var(--accent-cyan); box-shadow: 0 0 12px rgba(0, 246, 255, 0.3); background: rgba(0, 246, 255, 0.1); }
+      .color-dot { width: 14px; height: 14px; border-radius: 50%; border: 1px solid rgba(255, 255, 255, 0.4); }
+      .action-buttons { display: flex; gap: 14px; margin-top: 10px; }
+      .btn-primary { flex: 1; background: linear-gradient(135deg, var(--accent-magenta), var(--accent-purple)); color: #fff; border: none; padding: 16px 24px; border-radius: var(--radius-md); font-size: 16px; font-weight: 700; cursor: pointer; box-shadow: 0 8px 24px rgba(255, 0, 127, 0.3); }
+      .resumability-card { background: rgba(15, 23, 42, 0.85); border: 1px solid var(--accent-cyan); border-radius: var(--radius-lg); padding: 20px; margin-bottom: 40px; box-shadow: 0 0 20px rgba(0, 246, 255, 0.15); }
+      .resumability-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+      .cart-drawer { position: fixed; top: 0; right: 0; width: 380px; height: 100vh; background: var(--bg-dark); border-left: 1px solid var(--border-glow); z-index: 200; padding: 24px; display: flex; flex-direction: column; transform: translateX(100%); transition: transform 0.3s ease; }
+      .cart-drawer.open { transform: translateX(0); }
+      .cart-backdrop { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.6); z-index: 199; backdrop-filter: blur(4px); display: none; }
+      .cart-backdrop.open { display: block; }
+    </style>
   </head>
   <body>
-    <div id="app"></div>
+    <div class="container">
+      <header class="navbar">
+        <a href="#" class="brand-logo">
+          ⚡ NEXUS<span style="color: var(--accent-cyan);">CYBER</span>
+          <span class="brand-badge">Qwik Resumable</span>
+        </a>
+        <div class="nav-actions">
+          <button type="button" id="cartBtn" class="cart-icon-btn">
+            🛒 Cart <span id="cartBadge" class="cart-badge">1</span>
+          </button>
+        </div>
+      </header>
+
+      <main class="product-grid">
+        <div class="product-gallery">
+          <div class="main-image-frame">
+            <img id="mainImage" src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&auto=format&fit=crop&q=80" alt="Cyber Onyx" width="800" height="600" />
+            <span id="badgeTag" class="image-badge-tag">🔥 Popular Choice</span>
+          </div>
+        </div>
+
+        <div class="product-details">
+          <div>
+            <h1 class="product-title">Nexus Apex Pro Wireless ANC Headphones</h1>
+            <p class="product-tagline" style="margin-top: 8px;">Ultra-low latency, planar magnetic audiophile drivers with active noise cancellation and glassmorphism design.</p>
+          </div>
+
+          <div class="rating-row">
+            <span class="stars">★★★★★</span>
+            <strong style="color: #fff;">4.9</strong>
+            <span>(328 customer reviews)</span>
+            <span>• SKU: NXS-APEX-2026-PRO</span>
+          </div>
+
+          <div class="price-row">
+            <span id="currentPrice" class="current-price">$349.99</span>
+            <span id="originalPrice" class="original-price">$429.99</span>
+            <span id="stockIndicator" class="stock-indicator">🟢 14 items in stock (Ready for Instant Dispatch)</span>
+          </div>
+
+          <div class="variant-section">
+            <span class="variant-label">Select Colorway: <strong id="selectedVariantName">Cyber Onyx</strong></span>
+            <div class="variant-options">
+              <button type="button" class="variant-btn active" data-id="var-cyber-black" data-name="Cyber Onyx" data-price="349.99" data-orig="429.99" data-stock="14" data-badge="Popular Choice" data-img="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&auto=format&fit=crop&q=80">
+                <span class="color-dot" style="background-color: #0f172a;"></span> Cyber Onyx
+              </button>
+              <button type="button" class="variant-btn" data-id="var-neon-magenta" data-name="Neon Cyberpunk" data-price="369.99" data-orig="449.99" data-stock="5" data-badge="Limited Edition" data-img="https://images.unsplash.com/photo-1546435770-a3e426bf472b?w=800&auto=format&fit=crop&q=80">
+                <span class="color-dot" style="background-color: #ff007f;"></span> Neon Cyberpunk
+              </button>
+              <button type="button" class="variant-btn" data-id="var-solar-white" data-name="Solar Alpine" data-price="349.99" data-orig="429.99" data-stock="22" data-badge="" data-img="https://images.unsplash.com/photo-1583394838336-acd977736f90?w=800&auto=format&fit=crop&q=80">
+                <span class="color-dot" style="background-color: #e2e8f0;"></span> Solar Alpine
+              </button>
+            </div>
+          </div>
+
+          <div class="action-buttons">
+            <button type="button" id="addToCartBtn" class="btn-primary">
+              🛒 Add to Resumable Cart (<span id="btnPrice">$349.99</span>)
+            </button>
+          </div>
+        </div>
+      </main>
+
+      <section class="resumability-card">
+        <div class="resumability-header">
+          <div>
+            <h2 style="font-size: 18px; font-weight: 800; color: var(--accent-cyan);">⚡ Qwik Resumable State Engine Audit</h2>
+            <p style="font-size: 13px; color: var(--text-muted); margin-top: 4px;">Zero Hydration Delay — HTML contains pre-serialized application state without downloading JS hydration bundles!</p>
+          </div>
+          <span class="brand-badge" style="background: rgba(0, 246, 255, 0.2); color: var(--accent-cyan); border: 1px solid var(--accent-cyan);">0.0 ms Hydration Delay</span>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 14px; text-align: center;">
+          <div style="background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; padding: 10px;">
+            <div style="font-size: 18px; font-weight: 700; color: #10b981;">0.0 ms</div>
+            <div style="font-size: 11px; color: var(--text-muted);">Hydration Execution Time</div>
+          </div>
+          <div style="background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; padding: 10px;">
+            <div id="serializedStoresCount" style="font-size: 18px; font-weight: 700; color: var(--accent-cyan);">3</div>
+            <div style="font-size: 11px; color: var(--text-muted);">Serialized Qwik Stores</div>
+          </div>
+          <div style="background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; padding: 10px;">
+            <div id="payloadSizeLabel" style="font-size: 18px; font-weight: 700; color: var(--accent-purple);">184 B</div>
+            <div style="font-size: 11px; color: var(--text-muted);">Resumable JSON Payload</div>
+          </div>
+          <div style="background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; padding: 10px;">
+            <div id="activeVariantLabel" style="font-size: 18px; font-weight: 700; color: var(--accent-magenta);">Cyber Onyx</div>
+            <div style="font-size: 11px; color: var(--text-muted);">Active Variant Store</div>
+          </div>
+        </div>
+      </section>
+
+      <section style="background: var(--bg-card); border: 1px solid var(--border-glow); border-radius: var(--radius-lg); padding: 24px; backdrop-filter: blur(16px);">
+        <div style="display: flex; gap: 16px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 16px; margin-bottom: 20px;">
+          <button type="button" class="variant-btn active" id="tabFeatures">🔥 Features & Highlights</button>
+          <button type="button" class="variant-btn" id="tabSpecs">📋 Technical Specifications</button>
+          <button type="button" class="variant-btn" id="tabReviews">⭐ Customer Reviews (3)</button>
+        </div>
+
+        <div id="contentFeatures">
+          <ul style="display: flex; flex-direction: column; gap: 12px; list-style: none;">
+            <li style="display: flex; align-items: center; gap: 10px; font-size: 15px;">⚡ Qwik Instant Load Resumable State Architecture (0ms Hydration Delay)</li>
+            <li style="display: flex; align-items: center; gap: 10px; font-size: 15px;">🎧 50mm Custom Planar Magnetic Drivers with Sub-Bass Boost</li>
+            <li style="display: flex; align-items: center; gap: 10px; font-size: 15px;">🔇 Hybrid Active Noise Cancellation (ANC) up to -45dB</li>
+            <li style="display: flex; align-items: center; gap: 10px; font-size: 15px;">🔋 65 Hours Battery Life with Superfast USB-C Charge (10 min = 8 hrs)</li>
+            <li style="display: flex; align-items: center; gap: 10px; font-size: 15px;">📶 Ultra-Low Latency Bluetooth 5.4 + 2.4GHz Wireless USB-C Dongle</li>
+          </ul>
+        </div>
+
+        <div id="contentSpecs" style="display: none;">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+            <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 12px;">
+              <span style="font-size: 12px; font-weight: 700; color: var(--text-muted); display: block; text-transform: uppercase;">Driver Size</span>
+              <strong style="font-size: 14px; color: #fff; margin-top: 4px; display: block;">50mm Planar Magnetic Neodymium</strong>
+            </div>
+            <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 12px;">
+              <span style="font-size: 12px; font-weight: 700; color: var(--text-muted); display: block; text-transform: uppercase;">Frequency Response</span>
+              <strong style="font-size: 14px; color: #fff; margin-top: 4px; display: block;">5 Hz - 48,000 Hz</strong>
+            </div>
+            <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 12px;">
+              <span style="font-size: 12px; font-weight: 700; color: var(--text-muted); display: block; text-transform: uppercase;">Battery Life</span>
+              <strong style="font-size: 14px; color: #fff; margin-top: 4px; display: block;">65 Hours (ANC Off) / 45 Hours (ANC On)</strong>
+            </div>
+            <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 12px;">
+              <span style="font-size: 12px; font-weight: 700; color: var(--text-muted); display: block; text-transform: uppercase;">Microphone</span>
+              <strong style="font-size: 14px; color: #fff; margin-top: 4px; display: block;">Quad-Beamforming AI Noise Canceling Mic</strong>
+            </div>
+          </div>
+        </div>
+
+        <div id="contentReviews" style="display: none;">
+          <div style="display: flex; flex-direction: column; gap: 16px;">
+            <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 16px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <span style="font-size: 20px;">👨‍💻</span>
+                  <strong style="font-size: 15px; color: #fff;">Alexander Vance</strong>
+                  <span style="font-size: 11px; background: rgba(16, 185, 129, 0.2); color: #10b981; padding: 2px 6px; border-radius: 4px;">Verified Purchaser</span>
+                </div>
+                <span style="font-size: 13px; color: var(--text-muted);">July 24, 2026</span>
+              </div>
+              <div class="stars" style="margin-bottom: 6px;">★★★★★</div>
+              <strong style="font-size: 15px; color: #fff; display: block; margin-bottom: 4px;">Mind-blowing soundstage and instant UI responsiveness!</strong>
+              <p style="font-size: 14px; color: var(--text-muted);">The audio clarity is astonishing. Plus, navigating this product page feels ridiculously fast—zero lag or delay when adding to cart!</p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- Cart Drawer -->
+    <div id="cartBackdrop" class="cart-backdrop"></div>
+    <aside id="cartDrawer" class="cart-drawer">
+      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 16px; margin-bottom: 20px;">
+        <h2 style="font-size: 18px; font-weight: 800; color: #fff;">🛒 Your Cyber Cart</h2>
+        <button type="button" id="closeCartBtn" style="background: transparent; border: none; color: var(--text-muted); font-size: 20px; cursor: pointer;">✕</button>
+      </div>
+
+      <div id="cartItemsList" style="flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 16px;">
+        <div style="display: flex; gap: 12px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 10px; align-items: center;">
+          <img id="cartItemImg" src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&auto=format&fit=crop&q=80" width="50" height="50" style="object-fit: cover; border-radius: 6px;" />
+          <div style="flex: 1;">
+            <strong id="cartItemTitle" style="font-size: 13px; color: #fff; display: block;">Nexus Apex Pro (Cyber Onyx)</strong>
+            <span id="cartItemPrice" style="font-size: 13px; color: var(--accent-cyan); font-weight: 700;">$349.99</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <button type="button" id="qtyMinus" style="background: rgba(255,255,255,0.1); border: none; color: #fff; width: 24px; height: 24px; border-radius: 4px; cursor: pointer;">-</button>
+            <span id="qtyVal" style="font-size: 13px; font-weight: 700;">1</span>
+            <button type="button" id="qtyPlus" style="background: rgba(255,255,255,0.1); border: none; color: #fff; width: 24px; height: 24px; border-radius: 4px; cursor: pointer;">+</button>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top: 16px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 16px;">
+        <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+          <input type="text" id="promoInput" placeholder="Promo Code (QWIK15)" style="flex: 1; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #fff; padding: 8px 12px; border-radius: 6px; font-size: 13px; outline: none;" />
+          <button type="button" id="applyPromoBtn" class="variant-btn">Apply</button>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: var(--text-muted);">
+          <div style="display: flex; justify-content: space-between;">
+            <span>Subtotal:</span>
+            <strong id="cartSubtotal" style="color: #fff;">$349.99</strong>
+          </div>
+          <div id="discountRow" style="display: none; justify-content: space-between; color: #10b981;">
+            <span>Discount (QWIK15):</span>
+            <strong id="cartDiscount">-$52.50</strong>
+          </div>
+          <div style="display: flex; justify-content: space-between;">
+            <span>Shipping:</span>
+            <strong style="color: #fff;">FREE</strong>
+          </div>
+          <div style="display: flex; justify-content: space-between; font-size: 16px; font-weight: 800; color: #fff; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 8px; margin-top: 4px;">
+            <span>Total:</span>
+            <span id="cartTotal" style="color: var(--accent-cyan);">$349.99</span>
+          </div>
+        </div>
+
+        <button type="button" class="btn-primary" style="width: 100%; margin-top: 16px;" onclick="alert('Order placed successfully!')">
+          Checkout Instant
+        </button>
+      </div>
+    </aside>
+
+    <script>
+      // Interactive logic
+      const cartBtn = document.getElementById('cartBtn');
+      const closeCartBtn = document.getElementById('closeCartBtn');
+      const cartDrawer = document.getElementById('cartDrawer');
+      const cartBackdrop = document.getElementById('cartBackdrop');
+      const addToCartBtn = document.getElementById('addToCartBtn');
+
+      function openCart() { cartDrawer.classList.add('open'); cartBackdrop.classList.add('open'); }
+      function closeCart() { cartDrawer.classList.remove('open'); cartBackdrop.classList.remove('open'); }
+
+      cartBtn?.addEventListener('click', openCart);
+      closeCartBtn?.addEventListener('click', closeCart);
+      cartBackdrop?.addEventListener('click', closeCart);
+      addToCartBtn?.addEventListener('click', openCart);
+
+      // Variants
+      const variantBtns = document.querySelectorAll('.variant-btn[data-id]');
+      let qty = 1;
+      let price = 349.99;
+      let discountRate = 0;
+
+      variantBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          variantBtns.forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          price = parseFloat(btn.dataset.price);
+          document.getElementById('mainImage').src = btn.dataset.img;
+          document.getElementById('cartItemImg').src = btn.dataset.img;
+          document.getElementById('currentPrice').innerText = '$' + price.toFixed(2);
+          document.getElementById('originalPrice').innerText = '$' + btn.dataset.orig;
+          document.getElementById('btnPrice').innerText = '$' + price.toFixed(2);
+          document.getElementById('selectedVariantName').innerText = btn.dataset.name;
+          document.getElementById('activeVariantLabel').innerText = btn.dataset.name;
+          document.getElementById('cartItemTitle').innerText = 'Nexus Apex Pro (' + btn.dataset.name + ')';
+          document.getElementById('cartItemPrice').innerText = '$' + price.toFixed(2);
+          document.getElementById('stockIndicator').innerText = '🟢 ' + btn.dataset.stock + ' items in stock (Ready for Instant Dispatch)';
+          updateCart();
+        });
+      });
+
+      // Tabs
+      const tabFeatures = document.getElementById('tabFeatures');
+      const tabSpecs = document.getElementById('tabSpecs');
+      const tabReviews = document.getElementById('tabReviews');
+      const contentFeatures = document.getElementById('contentFeatures');
+      const contentSpecs = document.getElementById('contentSpecs');
+      const contentReviews = document.getElementById('contentReviews');
+
+      tabFeatures?.addEventListener('click', () => {
+        [tabFeatures, tabSpecs, tabReviews].forEach(t => t.classList.remove('active'));
+        tabFeatures.classList.add('active');
+        contentFeatures.style.display = 'block';
+        contentSpecs.style.display = 'none';
+        contentReviews.style.display = 'none';
+      });
+      tabSpecs?.addEventListener('click', () => {
+        [tabFeatures, tabSpecs, tabReviews].forEach(t => t.classList.remove('active'));
+        tabSpecs.classList.add('active');
+        contentFeatures.style.display = 'none';
+        contentSpecs.style.display = 'grid';
+        contentReviews.style.display = 'none';
+      });
+      tabReviews?.addEventListener('click', () => {
+        [tabFeatures, tabSpecs, tabReviews].forEach(t => t.classList.remove('active'));
+        tabReviews.classList.add('active');
+        contentFeatures.style.display = 'none';
+        contentSpecs.style.display = 'none';
+        contentReviews.style.display = 'block';
+      });
+
+      // Qty
+      document.getElementById('qtyPlus')?.addEventListener('click', () => { qty++; updateCart(); });
+      document.getElementById('qtyMinus')?.addEventListener('click', () => { if (qty > 1) { qty--; updateCart(); } });
+
+      // Promo
+      document.getElementById('applyPromoBtn')?.addEventListener('click', () => {
+        const code = document.getElementById('promoInput').value.trim().toUpperCase();
+        if (code === 'QWIK15') { discountRate = 0.15; } else { discountRate = 0; }
+        updateCart();
+      });
+
+      function updateCart() {
+        document.getElementById('qtyVal').innerText = qty;
+        document.getElementById('cartBadge').innerText = qty;
+        const sub = price * qty;
+        const disc = sub * discountRate;
+        const tot = sub - disc;
+        document.getElementById('cartSubtotal').innerText = '$' + sub.toFixed(2);
+        if (disc > 0) {
+          document.getElementById('discountRow').style.display = 'flex';
+          document.getElementById('cartDiscount').innerText = '-$' + disc.toFixed(2);
+        } else {
+          document.getElementById('discountRow').style.display = 'none';
+        }
+        document.getElementById('cartTotal').innerText = '$' + tot.toFixed(2);
+      }
+    </script>
   </body>
 </html>
