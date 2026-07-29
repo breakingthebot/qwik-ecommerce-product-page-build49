@@ -5,6 +5,15 @@ All notable changes to **Build 49 (Qwik E-Commerce Product Page)** will be docum
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.9.0] - 2026-07-29
+
+### Added
+- Integrated **Qwik Community Q&A Knowledge Base Drawer** in `src/services/productService.ts` and `src/routes/index.tsx`.
+- Added `QnaItem` interface, dataset, and `filterQnaItems` helper function supporting category filtering (*Audio & ANC*, *Connectivity*, *Battery & Charge*, *Warranty & Shipping*) and search query filtering.
+- Added **💬 Community Q&A** button in header navbar and product action bar opening Q&A Knowledge Base drawer modal overlay (`isQnaOpen`).
+- Added interactive question upvoting (`upvoteQuestion$`) and user question submission form (`submitUserQuestion$`).
+- Updated unit tests in `src/services/productService.spec.ts` (13 passing unit tests).
+
 ## [0.8.0] - 2026-07-29
 
 ### Added

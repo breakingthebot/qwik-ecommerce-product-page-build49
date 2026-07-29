@@ -5,6 +5,7 @@ import {
   calculateCartTotals,
   formatCurrency,
   filterReviews,
+  filterQnaItems,
   getResumableSnapshot,
   calculate360Rotation,
   calculateFlashSaleCountdown,
@@ -32,6 +33,12 @@ export default component$(() => {
   const selectedCurrency = useSignal<CurrencyCode>('USD');
   const isCompareOpen = useSignal<boolean>(false);
   const isArOpen = useSignal<boolean>(false);
+  const isQnaOpen = useSignal<boolean>(false);
+  const qnaSearchQuery = useSignal<string>('');
+  const qnaCategoryFilter = useSignal<string>('ALL');
+  const userQuestionInput = useSignal<string>('');
+  const qnaListStore = useStore({ items: product.qnaList });
+
   const isAudioPlaying = useSignal<boolean>(false);
   const audioTimeOffset = useSignal<number>(0);
 
@@ -128,6 +135,7 @@ export default component$(() => {
   const eqCurveSvg = calculateEqCurve(eqGains, 600, 100);
   const countdown = calculateFlashSaleCountdown(flashSaleSeconds.value);
   const currentSocial = product.socialPurchases[activeSocialPurchaseIndex.value];
+  const filteredQnaList = filterQnaItems(qnaListStore.items, qnaSearchQuery.value, qnaCategoryFilter.value);
 
   // Drag 360 state
   const isDragging = useSignal(false);
@@ -200,9 +208,30 @@ export default component$(() => {
     eqGains[index] = val;
   });
 
+  const upvoteQuestion$ = $((qnaId: string) => {
+    const found = qnaListStore.items.find(q => q.id === qnaId);
+    if (found) {
+      found.upvotes += 1;
+    }
+  });
+
+  const submitUserQuestion$ = $(() => {
+    if (!userQuestionInput.value.trim()) return;
+    qnaListStore.items.unshift({
+      id: `qna-${Date.now()}`,
+      category: 'Audio & ANC',
+      question: userQuestionInput.value.trim(),
+      answer: 'Our Cyber Support team will answer this question shortly!',
+      author: 'You (Verified Buyer)',
+      upvotes: 1,
+      date: 'Just now'
+    });
+    userQuestionInput.value = '';
+  });
+
   const totals = calculateCartTotals(cartStore.items, appliedPromo.value, selectedCurrency.value);
   const filteredReviews = filterReviews(product.reviews, ratingFilter.value);
-  const snapshot = getResumableSnapshot(cartStore.items, selectedVariantId.value, selectedLedId.value, rotationAngle.value, flashSaleSeconds.value, selectedAudioTrackId.value, selectedCurrency.value, isCompareOpen.value, selectedEqPresetId.value, isArOpen.value);
+  const snapshot = getResumableSnapshot(cartStore.items, selectedVariantId.value, selectedLedId.value, rotationAngle.value, flashSaleSeconds.value, selectedAudioTrackId.value, selectedCurrency.value, isCompareOpen.value, selectedEqPresetId.value, isArOpen.value, isQnaOpen.value);
   const totalCartCount = cartStore.items.reduce((acc, item) => acc + item.quantity, 0);
 
   return (
@@ -220,7 +249,7 @@ export default component$(() => {
       <header class="navbar">
         <a href="#" class="brand-logo">
           ⚡ NEXUS<span style="color: var(--accent-cyan);">CYBER</span>
-          <span class="brand-badge">Qwik Resumable Engine v0.8.0</span>
+          <span class="brand-badge">Qwik Resumable Engine v0.9.0</span>
         </a>
 
         <div class="nav-actions" style="display: flex; gap: 12px; align-items: center;">
@@ -240,6 +269,15 @@ export default component$(() => {
             onClick$={$(() => isCompareOpen.value = true)}
           >
             ⚖️ Compare Models
+          </button>
+
+          <button
+            type="button"
+            class="variant-btn"
+            style="padding: 8px 14px; font-size: 13px; border-color: var(--accent-purple);"
+            onClick$={$(() => isQnaOpen.value = true)}
+          >
+            💬 Community Q&A ({qnaListStore.items.length})
           </button>
 
           {/* Multi-Currency Switcher */}
@@ -395,7 +433,7 @@ export default component$(() => {
             </div>
           </div>
 
-          {/* Add to Cart & Compare Action Bar */}
+          {/* Add to Cart, Compare, & Q&A Action Bar */}
           <div class="action-buttons">
             <button
               type="button"
@@ -567,7 +605,7 @@ export default component$(() => {
         <div class="resumability-header">
           <div>
             <h2 style="font-size: 18px; font-weight: 800; color: var(--accent-cyan);">
-              ⚡ Qwik Resumable State Engine Audit (WebXR AR & Hardware DSP EQ Engine)
+              ⚡ Qwik Resumable State Engine Audit (Community Q&A & AR Engine)
             </h2>
             <p style="font-size: 13px; color: var(--text-muted); margin-top: 4px;">
               Zero Hydration Delay — HTML contains pre-serialized application state without downloading JS hydration bundles!
@@ -592,10 +630,10 @@ export default component$(() => {
             <div style="font-size: 11px; color: var(--text-muted);">Resumable JSON Payload</div>
           </div>
           <div style="background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; padding: 10px;">
-            <div style={`font-size: 18px; font-weight: 700; color: ${isArOpen.value ? '#10b981' : 'var(--accent-magenta)'};`}>
-              {isArOpen.value ? 'AR ACTIVE' : selectedEqPreset.name.split(' ')[0]}
+            <div style={`font-size: 18px; font-weight: 700; color: ${isQnaOpen.value ? '#10b981' : 'var(--accent-purple)'};`}>
+              {isQnaOpen.value ? 'Q&A OPEN' : `${qnaListStore.items.length} Q&As`}
             </div>
-            <div style="font-size: 11px; color: var(--text-muted);">AR / Hardware DSP EQ Store</div>
+            <div style="font-size: 11px; color: var(--text-muted);">Community Q&A Store</div>
           </div>
         </div>
       </section>
@@ -676,6 +714,123 @@ export default component$(() => {
           </div>
         )}
       </section>
+
+      {/* Community Q&A Knowledge Base Drawer Overlay */}
+      {isQnaOpen.value && (
+        <div style="position: fixed; inset: 0; z-index: 340; background: rgba(0,0,0,0.85); backdrop-filter: blur(14px); display: flex; align-items: center; justify-content: center; padding: 20px;">
+          <div style="background: var(--bg-dark); border: 1px solid var(--accent-purple); border-radius: var(--radius-lg); width: 100%; max-width: 900px; max-height: 90vh; overflow-y: auto; padding: 28px; box-shadow: 0 0 45px rgba(139, 92, 246, 0.35);">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 16px; margin-bottom: 20px;">
+              <div>
+                <h2 style="font-size: 22px; font-weight: 800; color: #fff; display: flex; align-items: center; gap: 10px;">
+                  💬 Community Q&A & Knowledge Base
+                </h2>
+                <p style="font-size: 13px; color: var(--text-muted); margin-top: 4px;">
+                  Search pre-purchase questions answered by engineers and verified owners.
+                </p>
+              </div>
+              <button
+                type="button"
+                style="background: transparent; border: none; color: var(--text-muted); font-size: 24px; cursor: pointer;"
+                onClick$={$(() => isQnaOpen.value = false)}
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Search & Category Filter Row */}
+            <div style="display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap;">
+              <input
+                type="text"
+                placeholder="🔍 Search questions (e.g., ANC, battery, dongle, warranty)..."
+                value={qnaSearchQuery.value}
+                onInput$={$((e) => qnaSearchQuery.value = (e.target as HTMLInputElement).value)}
+                style="flex: 2; min-width: 260px; background: rgba(255,255,255,0.05); border: 1px solid var(--border-glow); color: #fff; padding: 10px 14px; border-radius: 8px; font-size: 14px; outline: none;"
+              />
+              <div style="display: flex; gap: 8px; flex: 3; flex-wrap: wrap;">
+                {['ALL', 'Audio & ANC', 'Connectivity', 'Battery & Charge', 'Warranty & Shipping'].map((cat) => (
+                  <button
+                    key={cat}
+                    type="button"
+                    class={`variant-btn ${qnaCategoryFilter.value === cat ? 'active' : ''}`}
+                    style="padding: 6px 12px; font-size: 12px;"
+                    onClick$={$(() => qnaCategoryFilter.value = cat)}
+                  >
+                    {cat}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Q&A Accordion Items */}
+            <div style="display: flex; flex-direction: column; gap: 16px; margin-bottom: 24px;">
+              {filteredQnaList.length === 0 ? (
+                <p style="text-align: center; color: var(--text-muted); padding: 30px;">No questions matched your search query.</p>
+              ) : (
+                filteredQnaList.map((item) => (
+                  <div key={item.id} style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 16px;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 8px;">
+                      <div>
+                        <span style="font-size: 11px; font-weight: 700; background: rgba(139, 92, 246, 0.2); color: var(--accent-purple); padding: 2px 8px; border-radius: 4px; text-transform: uppercase;">
+                          {item.category}
+                        </span>
+                        <h3 style="font-size: 15px; font-weight: 700; color: #fff; margin-top: 6px;">❓ {item.question}</h3>
+                      </div>
+                      <button
+                        type="button"
+                        class="variant-btn"
+                        style="padding: 4px 10px; font-size: 12px; flex-shrink: 0;"
+                        onClick$={$(() => upvoteQuestion$(item.id))}
+                      >
+                        👍 Upvote ({item.upvotes})
+                      </button>
+                    </div>
+
+                    <p style="font-size: 14px; color: var(--text-muted); background: rgba(0,0,0,0.3); border-left: 3px solid var(--accent-cyan); padding: 10px 14px; border-radius: 0 6px 6px 0; margin-top: 8px;">
+                      💬 <strong>Answer:</strong> {item.answer}
+                    </p>
+                    <div style="font-size: 11px; color: var(--text-muted); margin-top: 8px; text-align: right;">
+                      Asked by {item.author} • {item.date}
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+
+            {/* Ask a Question Input Box */}
+            <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 16px;">
+              <h4 style="font-size: 14px; font-weight: 700; color: #fff; margin-bottom: 8px;">Have a question about Nexus Apex Pro?</h4>
+              <div style="display: flex; gap: 10px;">
+                <input
+                  type="text"
+                  placeholder="Type your question here..."
+                  value={userQuestionInput.value}
+                  onInput$={$((e) => userQuestionInput.value = (e.target as HTMLInputElement).value)}
+                  style="flex: 1; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #fff; padding: 10px 14px; border-radius: 8px; font-size: 13px; outline: none;"
+                />
+                <button
+                  type="button"
+                  class="btn-primary"
+                  style="padding: 10px 20px; font-size: 13px; flex-shrink: 0;"
+                  onClick$={submitUserQuestion$}
+                >
+                  Submit Question
+                </button>
+              </div>
+            </div>
+
+            <div style="text-align: right; margin-top: 20px;">
+              <button
+                type="button"
+                class="variant-btn"
+                style="padding: 10px 20px; font-size: 14px;"
+                onClick$={$(() => isQnaOpen.value = false)}
+              >
+                Close Q&A Drawer
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* AR Spatial Model Viewer Modal Overlay */}
       {isArOpen.value && (
@@ -929,7 +1084,7 @@ export default component$(() => {
               <span>Shipping:</span>
               <strong style="color: #fff;">{totals.formattedShipping}</strong>
             </div>
-            <div style="display: flex; justify-content: space-between; font-size: 16px; font-weight: 800; color: #fff; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 8px; margin-top: 4px;">
+            <div style="display: flex; justify-content: space-between; font-size: 16px; font-weight: 800; color: #fff; border-top: 1px solid rgba(255,255,255,0.1); paddingTop: 8px; margin-top: 4px;">
               <span>Total ({selectedCurrency.value}):</span>
               <span style="color: var(--accent-cyan);">{totals.formattedTotal}</span>
             </div>
@@ -950,11 +1105,11 @@ export default component$(() => {
 });
 
 export const head: DocumentHead = {
-  title: 'Nexus Apex Pro Wireless ANC Headphones | Qwik AR Spatial Engine',
+  title: 'Nexus Apex Pro Wireless ANC Headphones | Qwik Community Q&A Engine',
   meta: [
     {
       name: 'description',
-      content: 'Instant load, resumable state Qwik E-commerce product page with WebXR Augmented Reality (AR) spatial model viewer.'
+      content: 'Instant load, resumable state Qwik E-commerce product page with searchable Community Q&A Knowledge Base drawer.'
     }
   ]
 };

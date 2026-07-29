@@ -1,7 +1,3 @@
-// src/services/productService.ts
-// Business Logic & Product Engine for Build 49 - Qwik E-Commerce Product Page.
-// Updated: 2026-07-29 for Iteration 8 (Qwik AR Spatial Model Viewer)
-
 export interface ProductVariant {
   id: string;
   name: string;
@@ -11,6 +7,20 @@ export interface ProductVariant {
   stock: number;
   image: string;
   badge?: string;
+}
+
+export interface LedPreset {
+  id: string;
+  name: string;
+  hex: string;
+  glowShadow: string;
+}
+
+export interface SocialPurchase {
+  id: string;
+  location: string;
+  variantName: string;
+  timeAgo: string;
 }
 
 export interface ProductReview {
@@ -24,36 +34,27 @@ export interface ProductReview {
   verified: boolean;
 }
 
-export interface CartItem {
-  variantId: string;
-  name: string;
-  price: number;
-  image: string;
-  quantity: number;
-  ledColor?: string;
-}
-
-export interface LedPreset {
-  id: string;
-  name: string;
-  hex: string;
-  glowShadow: string;
-}
-
-export interface SocialProofPurchase {
-  id: string;
-  location: string;
-  variantName: string;
-  timeAgo: string;
-}
-
-export interface AudioDemoTrack {
+export interface AudioTrack {
   id: string;
   title: string;
   genre: string;
   durationSec: number;
   waveformPeaks: number[];
   description: string;
+}
+
+export interface EqPreset {
+  id: string;
+  name: string;
+  description: string;
+  gains: number[];
+}
+
+export interface ArLightingPreset {
+  id: string;
+  name: string;
+  ambientHex: string;
+  shadowIntensity: number;
 }
 
 export interface ComparisonModel {
@@ -70,18 +71,44 @@ export interface ComparisonModel {
   isCurrentProduct?: boolean;
 }
 
-export interface EqPreset {
+export interface QnaItem {
   id: string;
-  name: string;
-  description: string;
-  gains: number[]; // 5 band gains in dB (-12 to +12)
+  category: 'Audio & ANC' | 'Connectivity' | 'Battery & Charge' | 'Warranty & Shipping';
+  question: string;
+  answer: string;
+  author: string;
+  upvotes: number;
+  date: string;
 }
 
-export interface ArLightingPreset {
+export interface ProductData {
   id: string;
+  title: string;
+  tagline: string;
+  basePrice: number;
+  originalPrice: number;
+  rating: number;
+  reviewCount: number;
+  sku: string;
+  variants: ProductVariant[];
+  ledPresets: LedPreset[];
+  socialPurchases: SocialPurchase[];
+  audioTracks: AudioTrack[];
+  eqPresets: EqPreset[];
+  arLightingPresets: ArLightingPreset[];
+  qnaList: QnaItem[];
+  features: string[];
+  specs: Record<string, string>;
+  reviews: ProductReview[];
+}
+
+export interface CartItem {
+  variantId: string;
   name: string;
-  ambientHex: string;
-  shadowIntensity: number;
+  price: number;
+  image: string;
+  quantity: number;
+  ledColor: string;
 }
 
 export type CurrencyCode = 'USD' | 'EUR' | 'GBP' | 'JPY';
@@ -89,48 +116,30 @@ export type CurrencyCode = 'USD' | 'EUR' | 'GBP' | 'JPY';
 export interface CurrencyConfig {
   code: CurrencyCode;
   symbol: string;
-  rate: number; // relative to USD
+  rateVsUSD: number;
+  label: string;
 }
 
 export const CURRENCIES: Record<CurrencyCode, CurrencyConfig> = {
-  USD: { code: 'USD', symbol: '$', rate: 1.0 },
-  EUR: { code: 'EUR', symbol: '€', rate: 0.92 },
-  GBP: { code: 'GBP', symbol: '£', rate: 0.78 },
-  JPY: { code: 'JPY', symbol: '¥', rate: 155.0 }
+  USD: { code: 'USD', symbol: '$', rateVsUSD: 1.0, label: '🇺🇸 USD ($)' },
+  EUR: { code: 'EUR', symbol: '€', rateVsUSD: 0.92, label: '🇪🇺 EUR (€)' },
+  GBP: { code: 'GBP', symbol: '£', rateVsUSD: 0.78, label: '🇬🇧 GBP (£)' },
+  JPY: { code: 'JPY', symbol: '¥', rateVsUSD: 155.0, label: '🇯🇵 JPY (¥)' }
 };
 
-export interface ProductData {
-  id: string;
-  title: string;
-  tagline: string;
-  sku: string;
-  rating: number;
-  reviewCount: number;
-  variants: ProductVariant[];
-  features: string[];
-  specs: Record<string, string>;
-  reviews: ProductReview[];
-  ledPresets: LedPreset[];
-  socialPurchases: SocialProofPurchase[];
-  audioTracks: AudioDemoTrack[];
-  eqPresets: EqPreset[];
-  arLightingPresets: ArLightingPreset[];
-}
-
-/**
- * Returns complete product catalog data for Apex Pro Cyber Headphones.
- */
 export function getProductData(): ProductData {
   return {
-    id: 'apex-pro-cyber-v1',
+    id: 'nexus-apex-pro-01',
     title: 'Nexus Apex Pro Wireless ANC Headphones',
     tagline: 'Ultra-low latency, planar magnetic audiophile drivers with active noise cancellation and glassmorphism design.',
-    sku: 'NXS-APEX-2026-PRO',
+    basePrice: 349.99,
+    originalPrice: 429.99,
     rating: 4.9,
-    reviewCount: 328,
+    reviewCount: 128,
+    sku: 'NEXUS-APEX-PRO-01',
     variants: [
       {
-        id: 'var-cyber-black',
+        id: 'var-cyber-onyx',
         name: 'Cyber Onyx',
         colorHex: '#0f172a',
         price: 349.99,
@@ -140,13 +149,13 @@ export function getProductData(): ProductData {
         badge: 'Popular Choice'
       },
       {
-        id: 'var-neon-magenta',
+        id: 'var-neon-cyan',
         name: 'Neon Cyberpunk',
-        colorHex: '#ff007f',
+        colorHex: '#38bdf8',
         price: 369.99,
         originalPrice: 449.99,
-        stock: 5,
-        image: 'https://images.unsplash.com/photo-1546435770-a3e426bf472b?w=800&auto=format&fit=crop&q=80',
+        stock: 8,
+        image: 'https://images.unsplash.com/photo-1484704849700-f032a568e944?w=800&auto=format&fit=crop&q=80',
         badge: 'Limited Edition'
       },
       {
@@ -209,6 +218,53 @@ export function getProductData(): ProductData {
       { id: 'ar-daylight', name: 'Studio Daylight', ambientHex: '#f8fafc', shadowIntensity: 0.4 },
       { id: 'ar-dark', name: 'Darkroom Ambient', ambientHex: '#8b5cf6', shadowIntensity: 0.9 }
     ],
+    qnaList: [
+      {
+        id: 'qna-1',
+        category: 'Audio & ANC',
+        question: 'Does the Active Noise Cancellation (ANC) work in wired 3.5mm mode?',
+        answer: 'Yes! The internal DSP and Hybrid ANC engine operate independently in both wireless and wired 3.5mm AUX mode as long as power is turned on.',
+        author: 'Marcus K.',
+        upvotes: 42,
+        date: 'July 18, 2026'
+      },
+      {
+        id: 'qna-2',
+        category: 'Connectivity',
+        question: 'Can I connect simultaneously to my PC via 2.4GHz dongle and phone via Bluetooth?',
+        answer: 'Absolutely. Multipoint Dual-Stream Bluetooth 5.4 and 2.4GHz ultra-low latency wireless dongle operate concurrently with seamless audio priority switching.',
+        author: 'David S.',
+        upvotes: 38,
+        date: 'July 21, 2026'
+      },
+      {
+        id: 'qna-3',
+        category: 'Battery & Charge',
+        question: 'How fast does the USB-C fast charging replenish the battery?',
+        answer: 'A short 10-minute fast charge via USB-C PD delivers up to 8 hours of playback. A complete full charge takes only 45 minutes.',
+        author: 'Sarah L.',
+        upvotes: 29,
+        date: 'July 22, 2026'
+      },
+      {
+        id: 'qna-4',
+        category: 'Warranty & Shipping',
+        question: 'What warranty is included and what is the return policy?',
+        answer: 'Nexus Apex Pro includes a 2-Year International Express Hardware Warranty and a 30-day money-back satisfaction guarantee with free return shipping.',
+        author: 'Brandon T.',
+        upvotes: 19,
+        date: 'July 25, 2026'
+      },
+      {
+        id: 'qna-5',
+        category: 'Audio & ANC',
+        question: 'Are the memory foam ear cushions replaceable?',
+        answer: 'Yes, the magnetic snap-on ear cups are easily user-replaceable. Replacement leatherette and cooling gel ear cushions can be ordered directly.',
+        author: 'Jessica M.',
+        upvotes: 15,
+        date: 'July 27, 2026'
+      }
+    ],
     features: [
       '⚡ Qwik Instant Load Resumable State Architecture (0ms Hydration Delay)',
       '🎧 50mm Custom Planar Magnetic Drivers with Sub-Bass Boost',
@@ -248,185 +304,175 @@ export function getProductData(): ProductData {
       },
       {
         id: 'rev-3',
-        author: 'Marcus Brody',
-        avatar: '🎮',
+        author: 'Marcus Chen',
+        avatar: '🎧',
         rating: 4,
         date: 'July 15, 2026',
-        title: 'Zero audio delay in gaming mode',
-        comment: 'Using the 2.4GHz USB-C dongle yields imperceptible latency for competitive gaming. Highly recommended!',
+        title: 'Planar magnetic bass precision',
+        comment: 'Sub-bass extension down to 5Hz is unreal for wireless cans. Very comfortable for long coding sessions.',
         verified: true
       }
     ]
   };
 }
 
-/**
- * Returns AR metadata for WebXR & AR Quick Look previewing.
- */
-export function getArMetadata(variantId: string): {
-  usdzUrl: string;
-  glbUrl: string;
-  scaleRatio: string;
-  arQrCodeUrl: string;
-} {
-  return {
-    usdzUrl: `https://nexus-cyber.com/ar/${variantId}.usdz`,
-    glbUrl: `https://nexus-cyber.com/ar/${variantId}.glb`,
-    scaleRatio: '1:1 Real Scale (285g / 185mm x 165mm)',
-    arQrCodeUrl: `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=https://qwik-ecommerce-product-page-build49.vercel.app/%23ar-${variantId}`
-  };
-}
-
-/**
- * Calculates SVG path coordinates for Equalizer frequency response curve visualization.
- */
-export function calculateEqCurve(gains: number[], width = 600, height = 120): string {
-  if (!gains || gains.length === 0) return '';
-  const points = gains.map((gain, idx) => {
-    const x = (idx / (gains.length - 1)) * width;
-    // Map gain (-12dB to +12dB) to Y coordinate (0 to height)
-    const y = (height / 2) - (gain / 12) * (height / 2.4);
-    return `${Math.round(x)},${Math.round(y)}`;
-  });
-  return `M ${points.join(' L ')}`;
-}
-
-/**
- * Returns list of Nexus headphone models for side-by-side comparison.
- */
 export function getComparisonModels(): ComparisonModel[] {
   return [
     {
       id: 'apex-air',
       name: 'Nexus Apex Air',
-      tagline: 'Lightweight everyday wireless listening',
+      tagline: 'Lightweight Portable Wireless',
       priceUSD: 199.99,
-      driver: '40mm Dynamic Driver',
-      frequency: '20 Hz - 20,000 Hz',
-      ancLevel: '-25dB Standard ANC',
-      battery: '35 Hours',
+      driver: '40mm Dynamic Transducer',
+      frequency: '15 Hz - 25,000 Hz',
+      ancLevel: 'Hybrid ANC (-35dB)',
+      battery: '40 Hours',
       weight: '220g',
-      latency: '45ms',
-      isCurrentProduct: false
+      latency: '45ms'
     },
     {
-      id: 'apex-pro',
-      name: 'Nexus Apex Pro (This Model)',
-      tagline: 'Flagship audiophile planar magnetic + ANC',
+      id: 'nexus-apex-pro-01',
+      name: 'Nexus Apex Pro (Selected)',
+      tagline: 'Flagship Planar ANC Audiophile',
       priceUSD: 349.99,
       driver: '50mm Planar Magnetic',
       frequency: '5 Hz - 48,000 Hz',
-      ancLevel: '-45dB Hybrid Dual-Mic ANC',
+      ancLevel: 'Adaptive Smart ANC (-48dB)',
       battery: '65 Hours',
       weight: '285g',
-      latency: '15ms Ultra-Low',
+      latency: '15ms (Ultra-Low)',
       isCurrentProduct: true
     },
     {
       id: 'apex-studio',
       name: 'Nexus Apex Studio Master',
-      tagline: 'Reference studio mastering grade wireless',
+      tagline: 'Reference Electrostatic Master',
       priceUSD: 599.99,
-      driver: '60mm Beryllium Planar Driver',
+      driver: '50mm Beryllium Electrostatic',
       frequency: '2 Hz - 96,000 Hz',
-      ancLevel: '-50dB Adaptive AI ANC',
+      ancLevel: 'Ultra Silent ANC (-52dB)',
       battery: '80 Hours',
-      weight: '340g',
-      latency: '8ms Ultra-Zero',
+      weight: '310g',
+      latency: '8ms (Zero-Lag)',
       isCurrentProduct: false
     }
   ];
 }
 
-/**
- * Converts USD price to target currency code and formats symbol.
- */
-export function convertCurrency(usdAmount: number, targetCurrency: CurrencyCode = 'USD'): {
-  convertedAmount: number;
-  formatted: string;
-} {
-  const config = CURRENCIES[targetCurrency] || CURRENCIES.USD;
-  const convertedAmount = usdAmount * config.rate;
-
-  let formatted = '';
-  if (targetCurrency === 'JPY') {
-    formatted = `${config.symbol}${Math.round(convertedAmount).toLocaleString()}`;
-  } else {
-    formatted = `${config.symbol}${convertedAmount.toFixed(2)}`;
-  }
-
+export function getArMetadata(variantId: string) {
   return {
-    convertedAmount: Number(convertedAmount.toFixed(2)),
-    formatted
+    scaleRatio: '1:1 True Real-Scale (285g)',
+    glbUrl: `https://nexus-cyber.assets/models/${variantId}.glb`,
+    usdzUrl: `https://nexus-cyber.assets/models/${variantId}.usdz`,
+    arQrCodeUrl: `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://qwik-ecommerce-product-page-build49.vercel.app/ar/${variantId}`
   };
 }
 
 /**
- * Calculates audio frequency bar heights dynamically based on time and audio track peaks.
+ * Filter Q&A Knowledge Base items by query and category.
  */
-export function calculateFrequencyBars(peaks: number[], timeOffsetSec: number): number[] {
-  return peaks.map((peak, idx) => {
-    const wave = Math.sin(timeOffsetSec * 4 + idx * 0.5);
-    const height = Math.min(100, Math.max(15, peak + wave * 25));
-    return Math.round(height);
+export function filterQnaItems(items: QnaItem[], query = '', category = 'ALL'): QnaItem[] {
+  return items.filter((item) => {
+    const matchesCategory = category === 'ALL' || item.category === category;
+    const cleanQuery = query.trim().toLowerCase();
+    const matchesQuery = cleanQuery === '' ||
+      item.question.toLowerCase().includes(cleanQuery) ||
+      item.answer.toLowerCase().includes(cleanQuery) ||
+      item.author.toLowerCase().includes(cleanQuery);
+    return matchesCategory && matchesQuery;
   });
 }
 
 /**
- * Calculates remaining Flash Sale time format (HH:MM:SS) from target seconds.
+ * Calculates 360-degree rotation angle based on user drag delta.
  */
-export function calculateFlashSaleCountdown(totalSeconds: number): {
-  hours: string;
-  minutes: string;
-  seconds: string;
-  formatted: string;
-  isExpired: boolean;
-} {
-  if (totalSeconds <= 0) {
-    return { hours: '00', minutes: '00', seconds: '00', formatted: '00:00:00', isExpired: true };
-  }
-  const h = Math.floor(totalSeconds / 3600);
-  const m = Math.floor((totalSeconds % 3600) / 60);
-  const s = totalSeconds % 60;
-
-  const hoursStr = h.toString().padStart(2, '0');
-  const minutesStr = m.toString().padStart(2, '0');
-  const secondsStr = s.toString().padStart(2, '0');
-
-  return {
-    hours: hoursStr,
-    minutes: minutesStr,
-    seconds: secondsStr,
-    formatted: `${hoursStr}:${minutesStr}:${secondsStr}`,
-    isExpired: false
-  };
-}
-
-/**
- * Calculates the current 360 degree rotation angle and frame index from drag delta.
- */
-export function calculate360Rotation(currentAngle: number, deltaX: number, sensitivity = 0.5): {
-  angle: number;
-  frameIndex: number;
-  normalizedDeg: string;
-} {
+export function calculate360Rotation(currentAngle: number, deltaX: number, sensitivity = 0.5): { angle: number; frameIndex: number } {
   let newAngle = (currentAngle + deltaX * sensitivity) % 360;
   if (newAngle < 0) newAngle += 360;
-  
-  const totalFrames = 24; // 24 angles around 360deg
-  const frameIndex = Math.floor((newAngle / 360) * totalFrames) % totalFrames;
+  const frameIndex = Math.floor((newAngle / 360) * 24) % 24;
+  return { angle: newAngle, frameIndex };
+}
+
+/**
+ * Converts USD base price to selected target currency.
+ */
+export function convertCurrency(priceUSD: number, targetCurrency: CurrencyCode): { convertedAmount: number; formatted: string; symbol: string } {
+  const config = CURRENCIES[targetCurrency] || CURRENCIES.USD;
+  const amount = priceUSD * config.rateVsUSD;
+
+  let formatted = '';
+  if (targetCurrency === 'JPY') {
+    formatted = `${config.symbol}${Math.round(amount).toLocaleString()}`;
+  } else {
+    formatted = `${config.symbol}${amount.toFixed(2)}`;
+  }
 
   return {
-    angle: Number(newAngle.toFixed(1)),
-    frameIndex,
-    normalizedDeg: `${Math.round(newAngle)}°`
+    convertedAmount: amount,
+    formatted,
+    symbol: config.symbol
   };
 }
 
 /**
- * Calculates cart totals including subtotal, tax, discounts, and final total in target currency.
+ * Calculates countdown time string (HH:MM:SS) from seconds.
  */
-export function calculateCartTotals(cartItems: CartItem[], promoCode = '', currency: CurrencyCode = 'USD'): {
+export function calculateFlashSaleCountdown(totalSeconds: number): { hours: number; minutes: number; seconds: number; formatted: string } {
+  const s = Math.max(0, totalSeconds);
+  const hours = Math.floor(s / 3600);
+  const minutes = Math.floor((s % 3600) / 60);
+  const seconds = Math.floor(s % 60);
+
+  const hh = hours.toString().padStart(2, '0');
+  const mm = minutes.toString().padStart(2, '0');
+  const ss = seconds.toString().padStart(2, '0');
+
+  return {
+    hours,
+    minutes,
+    seconds,
+    formatted: `${hh}:${mm}:${ss}`
+  };
+}
+
+/**
+ * Generates dynamic frequency bar spectrum heights based on audio time offset.
+ */
+export function calculateFrequencyBars(peaks: number[], timeOffset = 0): number[] {
+  return peaks.map((p, i) => {
+    const wave = Math.sin(timeOffset * 3 + i) * 15;
+    return Math.min(100, Math.max(15, Math.round(p + wave)));
+  });
+}
+
+/**
+ * Calculates SVG path coordinates string for EQ response curve.
+ */
+export function calculateEqCurve(gains: number[], width = 600, height = 100): string {
+  const points = gains.map((g, i) => {
+    const x = (i / (gains.length - 1)) * width;
+    const y = (height / 2) - (g * 3.5); // 3.5px per dB
+    return { x, y };
+  });
+
+  let d = `M ${points[0].x},${points[0].y}`;
+  for (let i = 0; i < points.length - 1; i++) {
+    const p1 = points[i];
+    const p2 = points[i + 1];
+    const cx = (p1.x + p2.x) / 2;
+    d += ` C ${cx},${p1.y} ${cx},${p2.y} ${p2.x},${p2.y}`;
+  }
+  return d;
+}
+
+/**
+ * Computes cart subtotal, shipping, discount, and total in target currency.
+ */
+export function calculateCartTotals(
+  items: CartItem[],
+  promoCode = '',
+  currency: CurrencyCode = 'USD'
+): {
   subtotal: number;
   discount: number;
   tax: number;
@@ -437,16 +483,13 @@ export function calculateCartTotals(cartItems: CartItem[], promoCode = '', curre
   formattedShipping: string;
   formattedTotal: string;
 } {
-  const subtotalUSD = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
-  let discountPercent = 0;
+  const subtotalUSD = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
-  if (promoCode.trim().toUpperCase() === 'QWIK15') {
-    discountPercent = 0.15;
-  } else if (promoCode.trim().toUpperCase() === 'NEXUS20') {
-    discountPercent = 0.20;
+  let discountUSD = 0;
+  if (promoCode.toUpperCase() === 'QWIK15') {
+    discountUSD = subtotalUSD * 0.15;
   }
 
-  const discountUSD = subtotalUSD * discountPercent;
   const shippingUSD = subtotalUSD > 200 || subtotalUSD === 0 ? 0 : 15.00;
   const taxableAmount = Math.max(0, subtotalUSD - discountUSD);
   const taxUSD = taxableAmount * 0.08; // 8% sales tax
@@ -489,15 +532,15 @@ export function filterReviews(reviews: ProductReview[], minRating = 0): ProductR
 /**
  * Generates serialized resumable state metadata snapshot.
  */
-export function getResumableSnapshot(cartItems: CartItem[], selectedVariantId: string, ledColor = 'led-cyan', rotationAngle = 0, flashSaleSeconds = 14400, activeAudioTrack = 'tr-bass', currency: CurrencyCode = 'USD', isCompareOpen = false, eqPreset = 'eq-flat', isArOpen = false): {
+export function getResumableSnapshot(cartItems: CartItem[], selectedVariantId: string, ledColor = 'led-cyan', rotationAngle = 0, flashSaleSeconds = 14400, activeAudioTrack = 'tr-bass', currency: CurrencyCode = 'USD', isCompareOpen = false, eqPreset = 'eq-flat', isArOpen = false, isQnaOpen = false): {
   serializedObjectsCount: number;
   resumabilityKey: string;
   hydrationCostMs: number;
   payloadSizeBytes: number;
 } {
-  const payload = JSON.stringify({ cartItems, selectedVariantId, ledColor, rotationAngle, flashSaleSeconds, activeAudioTrack, currency, isCompareOpen, eqPreset, isArOpen });
+  const payload = JSON.stringify({ cartItems, selectedVariantId, ledColor, rotationAngle, flashSaleSeconds, activeAudioTrack, currency, isCompareOpen, eqPreset, isArOpen, isQnaOpen });
   return {
-    serializedObjectsCount: cartItems.length + 9,
+    serializedObjectsCount: cartItems.length + 10,
     resumabilityKey: `qwik:store:${Date.now().toString(36)}`,
     hydrationCostMs: 0.0, // Qwik zero hydration delay
     payloadSizeBytes: new Blob([payload]).size
