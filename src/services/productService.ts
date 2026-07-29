@@ -1,6 +1,6 @@
 // src/services/productService.ts
 // Business Logic & Product Engine for Build 49 - Qwik E-Commerce Product Page.
-// Updated: 2026-07-29 for Iteration 3 (Real-Time Live Stock & Flash Sale Countdown Engine)
+// Updated: 2026-07-29 for Iteration 4 (Qwik Audio Frequency Visualizer & Sound Demo Player)
 
 export interface ProductVariant {
   id: string;
@@ -47,6 +47,15 @@ export interface SocialProofPurchase {
   timeAgo: string;
 }
 
+export interface AudioDemoTrack {
+  id: string;
+  title: string;
+  genre: string;
+  durationSec: number;
+  waveformPeaks: number[];
+  description: string;
+}
+
 export interface ProductData {
   id: string;
   title: string;
@@ -60,6 +69,7 @@ export interface ProductData {
   reviews: ProductReview[];
   ledPresets: LedPreset[];
   socialPurchases: SocialProofPurchase[];
+  audioTracks: AudioDemoTrack[];
 }
 
 /**
@@ -117,6 +127,32 @@ export function getProductData(): ProductData {
       { id: 'sp-3', location: 'San Francisco, USA 🇺🇸', variantName: 'Solar Alpine', timeAgo: '12 mins ago' },
       { id: 'sp-4', location: 'London, UK 🇬🇧', variantName: 'Neon Cyberpunk', timeAgo: '18 mins ago' }
     ],
+    audioTracks: [
+      {
+        id: 'tr-bass',
+        title: 'Cyberpunk Sub-Bass Pressure Test',
+        genre: 'Synthwave / Industrial',
+        durationSec: 180,
+        waveformPeaks: [40, 85, 95, 60, 100, 90, 75, 45, 90, 100, 80, 50],
+        description: 'Deep 20Hz sub-bass sweeps testing planar magnetic driver displacement without distortion.'
+      },
+      {
+        id: 'tr-anc',
+        title: 'Hybrid ANC Noise Isolation Demo',
+        genre: 'Acoustic / Field Recording',
+        durationSec: 140,
+        waveformPeaks: [30, 45, 60, 35, 70, 50, 40, 65, 80, 60, 45, 30],
+        description: '-45dB active noise cancellation filtering low-frequency airplane engine rumble.'
+      },
+      {
+        id: 'tr-spatial',
+        title: '3D Binaural Spatial Audio Test',
+        genre: 'Orchestral / Cinema',
+        durationSec: 210,
+        waveformPeaks: [50, 70, 85, 90, 65, 80, 95, 100, 85, 70, 60, 40],
+        description: 'Immersive 7.1.4 Dolby Atmos spatial positioning and crystal clear vocal separation.'
+      }
+    ],
     features: [
       '⚡ Qwik Instant Load Resumable State Architecture (0ms Hydration Delay)',
       '🎧 50mm Custom Planar Magnetic Drivers with Sub-Bass Boost',
@@ -166,6 +202,17 @@ export function getProductData(): ProductData {
       }
     ]
   };
+}
+
+/**
+ * Calculates audio frequency bar heights dynamically based on time and audio track peaks.
+ */
+export function calculateFrequencyBars(peaks: number[], timeOffsetSec: number): number[] {
+  return peaks.map((peak, idx) => {
+    const wave = Math.sin(timeOffsetSec * 4 + idx * 0.5);
+    const height = Math.min(100, Math.max(15, peak + wave * 25));
+    return Math.round(height);
+  });
 }
 
 /**
@@ -274,15 +321,15 @@ export function filterReviews(reviews: ProductReview[], minRating = 0): ProductR
 /**
  * Generates serialized resumable state metadata snapshot.
  */
-export function getResumableSnapshot(cartItems: CartItem[], selectedVariantId: string, ledColor = 'led-cyan', rotationAngle = 0, flashSaleSeconds = 14400): {
+export function getResumableSnapshot(cartItems: CartItem[], selectedVariantId: string, ledColor = 'led-cyan', rotationAngle = 0, flashSaleSeconds = 14400, activeAudioTrack = 'tr-bass'): {
   serializedObjectsCount: number;
   resumabilityKey: string;
   hydrationCostMs: number;
   payloadSizeBytes: number;
 } {
-  const payload = JSON.stringify({ cartItems, selectedVariantId, ledColor, rotationAngle, flashSaleSeconds });
+  const payload = JSON.stringify({ cartItems, selectedVariantId, ledColor, rotationAngle, flashSaleSeconds, activeAudioTrack });
   return {
-    serializedObjectsCount: cartItems.length + 4,
+    serializedObjectsCount: cartItems.length + 5,
     resumabilityKey: `qwik:store:${Date.now().toString(36)}`,
     hydrationCostMs: 0.0, // Qwik zero hydration delay
     payloadSizeBytes: new Blob([payload]).size

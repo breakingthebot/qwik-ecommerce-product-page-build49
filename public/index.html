@@ -2,9 +2,9 @@
 <html lang="en" q:container="paused" q:slot="disabled" q:version="1.20.0">
   <head>
     <meta charset="utf-8" />
-    <title>Nexus Apex Pro Wireless ANC Headphones | Qwik Flash Sale</title>
+    <title>Nexus Apex Pro Wireless ANC Headphones | Qwik Sound Engine</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Instant load, resumable state Qwik E-commerce product page with real-time flash sale countdown and live stock counter." />
+    <meta name="description" content="Instant load, resumable state Qwik E-commerce product page with interactive audio frequency visualizer and sound demo player." />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <style>
       :root {
@@ -68,6 +68,7 @@
       .cart-drawer.open { transform: translateX(0); }
       .cart-backdrop { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.6); z-index: 199; backdrop-filter: blur(4px); display: none; }
       .cart-backdrop.open { display: block; }
+      .freq-bar { flex: 1; border-radius: 4px 4px 0 0; transition: height 0.1s ease; }
     </style>
   </head>
   <body>
@@ -82,7 +83,7 @@
       <header class="navbar">
         <a href="#" class="brand-logo">
           ⚡ NEXUS<span style="color: var(--accent-cyan);">CYBER</span>
-          <span class="brand-badge">Qwik Live Engine</span>
+          <span class="brand-badge">Qwik Sound Engine</span>
         </a>
         <div class="nav-actions">
           <button type="button" id="cartBtn" class="cart-icon-btn">
@@ -125,7 +126,6 @@
             <span id="stockIndicator" class="stock-indicator">🔴 Only 14 items left in stock (High Demand!)</span>
           </div>
 
-          <!-- Live Stock Bar -->
           <div style="background: rgba(255,255,255,0.05); border-radius: 6px; height: 8px; overflow: hidden; margin-top: -10px;">
             <div id="stockBar" style="width: 56%; height: 100%; background: linear-gradient(90deg, #ff007f, #f59e0b); transition: width 0.4s ease;"></div>
           </div>
@@ -145,7 +145,6 @@
             </div>
           </div>
 
-          <!-- LED Accent Light Customizer -->
           <div class="variant-section">
             <span class="variant-label">Custom LED Accent Light: <strong id="selectedLedName" style="color: #00f6ff;">Cyber Cyan</strong></span>
             <div class="variant-options" style="flex-wrap: wrap;">
@@ -175,6 +174,67 @@
         </div>
       </main>
 
+      <!-- Audio Frequency Visualizer Section -->
+      <section style="background: var(--bg-card); border: 1px solid var(--accent-cyan); border-radius: var(--radius-lg); padding: 24px; margin-bottom: 40px; box-shadow: 0 0 25px rgba(0, 246, 255, 0.15);">
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 16px; margin-bottom: 20px;">
+          <div>
+            <h2 style="font-size: 20px; font-weight: 800; color: #fff; display: flex; align-items: center; gap: 10px;">
+              🎵 Interactive Audio Frequency Visualizer & Sound Demo Player
+            </h2>
+            <p style="font-size: 13px; color: var(--text-muted); margin-top: 4px;">
+              Test planar magnetic bass response, ANC isolation, and 3D spatial surround sound directly in your browser.
+            </p>
+          </div>
+          <button type="button" id="playAudioBtn" class="variant-btn active" style="padding: 10px 20px; font-size: 15px; border-color: var(--accent-cyan);">
+            ▶ Play Sound Demo
+          </button>
+        </div>
+
+        <div style="display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap;">
+          <button type="button" class="audio-track-btn variant-btn active" data-id="tr-bass" data-title="Cyberpunk Sub-Bass" data-desc="Deep 20Hz sub-bass sweeps testing planar magnetic driver displacement without distortion." style="flex: 1; min-width: 240px; text-align: left; display: block; padding: 12px 16px;">
+            <strong style="font-size: 14px; color: #fff; display: block;">Cyberpunk Sub-Bass Pressure Test</strong>
+            <span style="font-size: 12px; color: var(--text-muted); display: block; margin-top: 2px;">Synthwave / Industrial</span>
+          </button>
+          <button type="button" class="audio-track-btn variant-btn" data-id="tr-anc" data-title="Hybrid ANC Isolation" data-desc="-45dB active noise cancellation filtering low-frequency airplane engine rumble." style="flex: 1; min-width: 240px; text-align: left; display: block; padding: 12px 16px;">
+            <strong style="font-size: 14px; color: #fff; display: block;">Hybrid ANC Noise Isolation Demo</strong>
+            <span style="font-size: 12px; color: var(--text-muted); display: block; margin-top: 2px;">Acoustic / Field Recording</span>
+          </button>
+          <button type="button" class="audio-track-btn variant-btn" data-id="tr-spatial" data-title="3D Spatial Surround" data-desc="Immersive 7.1.4 Dolby Atmos spatial positioning and crystal clear vocal separation." style="flex: 1; min-width: 240px; text-align: left; display: block; padding: 12px 16px;">
+            <strong style="font-size: 14px; color: #fff; display: block;">3D Binaural Spatial Audio Test</strong>
+            <span style="font-size: 12px; color: var(--text-muted); display: block; margin-top: 2px;">Orchestral / Cinema</span>
+          </button>
+        </div>
+
+        <div style="background: rgba(0, 0, 0, 0.4); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; padding: 20px; text-align: center;">
+          <div id="freqContainer" style="display: flex; justify-content: space-between; align-items: flex-end; height: 100px; gap: 8px; max-width: 700px; margin: 0 auto;">
+            <div class="freq-bar" style="height: 40%; background: rgba(255,255,255,0.15);"></div>
+            <div class="freq-bar" style="height: 85%; background: rgba(255,255,255,0.15);"></div>
+            <div class="freq-bar" style="height: 95%; background: rgba(255,255,255,0.15);"></div>
+            <div class="freq-bar" style="height: 60%; background: rgba(255,255,255,0.15);"></div>
+            <div class="freq-bar" style="height: 100%; background: rgba(255,255,255,0.15);"></div>
+            <div class="freq-bar" style="height: 90%; background: rgba(255,255,255,0.15);"></div>
+            <div class="freq-bar" style="height: 75%; background: rgba(255,255,255,0.15);"></div>
+            <div class="freq-bar" style="height: 45%; background: rgba(255,255,255,0.15);"></div>
+            <div class="freq-bar" style="height: 90%; background: rgba(255,255,255,0.15);"></div>
+            <div class="freq-bar" style="height: 100%; background: rgba(255,255,255,0.15);"></div>
+            <div class="freq-bar" style="height: 80%; background: rgba(255,255,255,0.15);"></div>
+            <div class="freq-bar" style="height: 50%; background: rgba(255,255,255,0.15);"></div>
+          </div>
+
+          <div style="display: flex; justify-content: space-between; margin-top: 12px; font-size: 11px; color: var(--text-muted); max-width: 700px; margin: 12px auto 0 auto;">
+            <span>20Hz Sub-Bass</span>
+            <span>250Hz Mid-Bass</span>
+            <span>1kHz Midrange</span>
+            <span>4kHz Treble</span>
+            <span>20kHz Ultra-High</span>
+          </div>
+
+          <p id="audioTrackDesc" style="font-size: 13px; color: var(--accent-cyan); font-weight: 600; margin-top: 16px;">
+            ℹ️ Deep 20Hz sub-bass sweeps testing planar magnetic driver displacement without distortion.
+          </p>
+        </div>
+      </section>
+
       <!-- Social Proof Toast Popup -->
       <div id="socialToast" style="position: fixed; bottom: 20px; left: 20px; z-index: 150; background: rgba(15, 23, 42, 0.95); border: 1px solid var(--accent-cyan); border-radius: 12px; padding: 12px 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.6); backdrop-filter: blur(12px); display: flex; align-items: center; gap: 12px;">
         <span style="font-size: 24px;">🔥</span>
@@ -191,7 +251,7 @@
       <section class="resumability-card">
         <div class="resumability-header">
           <div>
-            <h2 style="font-size: 18px; font-weight: 800; color: var(--accent-cyan);">⚡ Qwik Resumable State Engine Audit (Flash Sale + Live Stock)</h2>
+            <h2 style="font-size: 18px; font-weight: 800; color: var(--accent-cyan);">⚡ Qwik Resumable State Engine Audit (Sound Demo Engine)</h2>
             <p style="font-size: 13px; color: var(--text-muted); margin-top: 4px;">Zero Hydration Delay — HTML contains pre-serialized application state without downloading JS hydration bundles!</p>
           </div>
           <span class="brand-badge" style="background: rgba(0, 246, 255, 0.2); color: var(--accent-cyan); border: 1px solid var(--accent-cyan);">0.0 ms Hydration Delay</span>
@@ -203,16 +263,16 @@
             <div style="font-size: 11px; color: var(--text-muted);">Hydration Execution Time</div>
           </div>
           <div style="background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; padding: 10px;">
-            <div id="serializedStoresCount" style="font-size: 18px; font-weight: 700; color: var(--accent-cyan);">5</div>
+            <div id="serializedStoresCount" style="font-size: 18px; font-weight: 700; color: var(--accent-cyan);">6</div>
             <div style="font-size: 11px; color: var(--text-muted);">Serialized Qwik Stores</div>
           </div>
           <div style="background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; padding: 10px;">
-            <div id="payloadSizeLabel" style="font-size: 18px; font-weight: 700; color: var(--accent-purple);">264 B</div>
+            <div id="payloadSizeLabel" style="font-size: 18px; font-weight: 700; color: var(--accent-purple);">298 B</div>
             <div style="font-size: 11px; color: var(--text-muted);">Resumable JSON Payload</div>
           </div>
           <div style="background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; padding: 10px;">
-            <div id="countdownAudit" style="font-size: 18px; font-weight: 700; color: var(--accent-magenta);">03:59:52</div>
-            <div style="font-size: 11px; color: var(--text-muted);">Live Flash Countdown</div>
+            <div id="activeTrackAudit" style="font-size: 18px; font-weight: 700; color: var(--accent-cyan);">Cyberpunk</div>
+            <div style="font-size: 11px; color: var(--text-muted);">Active Audio Track Store</div>
           </div>
         </div>
       </section>
@@ -330,6 +390,42 @@
     </aside>
 
     <script>
+      // Audio Visualizer Animation
+      const playAudioBtn = document.getElementById('playAudioBtn');
+      const freqBars = document.querySelectorAll('.freq-bar');
+      let isPlayingAudio = false;
+      let audioTime = 0;
+      let audioInterval = null;
+
+      playAudioBtn?.addEventListener('click', () => {
+        isPlayingAudio = !isPlayingAudio;
+        if (isPlayingAudio) {
+          playAudioBtn.innerText = '⏸ Pause Demo';
+          audioInterval = setInterval(() => {
+            audioTime += 0.1;
+            freqBars.forEach((bar, idx) => {
+              const h = Math.min(100, Math.max(15, 60 + Math.sin(audioTime * 4 + idx * 0.5) * 35));
+              bar.style.height = h + '%';
+              bar.style.background = 'linear-gradient(to top, var(--accent-cyan), var(--accent-magenta))';
+            });
+          }, 100);
+        } else {
+          playAudioBtn.innerText = '▶ Play Sound Demo';
+          clearInterval(audioInterval);
+          freqBars.forEach(bar => bar.style.background = 'rgba(255,255,255,0.15)');
+        }
+      });
+
+      const audioTrackBtns = document.querySelectorAll('.audio-track-btn');
+      audioTrackBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          audioTrackBtns.forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          document.getElementById('audioTrackDesc').innerText = 'ℹ️ ' + btn.dataset.desc;
+          document.getElementById('activeTrackAudit').innerText = btn.dataset.title.split(' ')[0];
+        });
+      });
+
       // Flash Sale Timer
       let secondsLeft = 14400;
       setInterval(() => {
@@ -339,22 +435,7 @@
         const s = String(secondsLeft % 60).padStart(2, '0');
         const str = h + ':' + m + ':' + s;
         document.getElementById('countdownLabel').innerText = str;
-        document.getElementById('countdownAudit').innerText = str;
       }, 1000);
-
-      // Social Proof Toasts
-      const socials = [
-        { loc: 'Tokyo, Japan 🇯🇵', variant: 'Neon Cyberpunk', time: '2 mins ago' },
-        { loc: 'Berlin, Germany 🇩🇪', variant: 'Cyber Onyx', time: '6 mins ago' },
-        { loc: 'San Francisco, USA 🇺🇸', variant: 'Solar Alpine', time: '12 mins ago' }
-      ];
-      let socialIdx = 0;
-      setInterval(() => {
-        socialIdx = (socialIdx + 1) % socials.length;
-        document.getElementById('toastLoc').innerText = socials[socialIdx].loc;
-        document.getElementById('toastVariant').innerText = socials[socialIdx].variant;
-        document.getElementById('toastTime').innerText = socials[socialIdx].time;
-      }, 6000);
 
       // Interactive logic
       const cartBtn = document.getElementById('cartBtn');
@@ -400,8 +481,6 @@
           activeLedName = btn.dataset.name;
           document.getElementById('selectedLedName').innerText = activeLedName;
           document.getElementById('selectedLedName').style.color = hex;
-          document.getElementById('activeVariantLabel').innerText = activeLedName;
-          document.getElementById('activeVariantLabel').style.color = hex;
           imageFrame.style.boxShadow = shadow;
           document.getElementById('ledOverlay').style.background = `radial-gradient(circle at 50% 50%, ${hex}40 0%, transparent 70%)`;
         });

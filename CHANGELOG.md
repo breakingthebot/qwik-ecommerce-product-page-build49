@@ -5,6 +5,14 @@ All notable changes to **Build 49 (Qwik E-Commerce Product Page)** will be docum
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.0] - 2026-07-29
+
+### Added
+- Integrated **Qwik Audio Frequency Visualizer & Sound Demo Player** in `src/services/productService.ts` and `src/routes/index.tsx`.
+- Added audio frequency spectrum calculation math (`calculateFrequencyBars`) and audio demo tracks array (`audioTracks`).
+- Rendered Sound Demo Player card, animated frequency spectrum visualizer bars, track switcher (*Cyberpunk Sub-Bass*, *Hybrid ANC Isolation*, *3D Spatial Surround*), and play/pause toggle state.
+- Updated unit tests in `src/services/productService.spec.ts` (8 passing unit tests).
+
 ## [0.3.0] - 2026-07-29
 
 ### Added

@@ -8,6 +8,7 @@ import {
   getResumableSnapshot,
   calculate360Rotation,
   calculateFlashSaleCountdown,
+  calculateFrequencyBars,
   type CartItem
 } from '../services/productService';
 
@@ -17,6 +18,10 @@ export default component$(() => {
   // Qwik Resumable Reactive State
   const selectedVariantId = useSignal(product.variants[0].id);
   const selectedLedId = useSignal(product.ledPresets[0].id);
+  const selectedAudioTrackId = useSignal(product.audioTracks[0].id);
+  const isAudioPlaying = useSignal<boolean>(false);
+  const audioTimeOffset = useSignal<number>(0);
+
   const rotationAngle = useSignal<number>(0);
   const isAutoSpinning = useSignal<boolean>(false);
   const flashSaleSeconds = useSignal<number>(14400); // 4 Hours Flash Sale Countdown
@@ -28,14 +33,17 @@ export default component$(() => {
   const promoCodeInput = useSignal('');
   const appliedPromo = useSignal('');
 
-  // Live Timer Task for Flash Sale & Social Proof Toast Rotator
+  // Live Timer Task for Flash Sale, Audio Frequency Visualizer & Social Proof Toast Rotator
   // eslint-disable-next-line qwik/no-use-visible-task
   useVisibleTask$(({ cleanup }) => {
     const timer = setInterval(() => {
       if (flashSaleSeconds.value > 0) {
         flashSaleSeconds.value -= 1;
       }
-    }, 1000);
+      if (isAudioPlaying.value) {
+        audioTimeOffset.value += 0.1;
+      }
+    }, 100);
 
     const socialTimer = setInterval(() => {
       showToast.value = false;
@@ -66,6 +74,8 @@ export default component$(() => {
 
   const selectedVariant = product.variants.find(v => v.id === selectedVariantId.value) || product.variants[0];
   const selectedLed = product.ledPresets.find(l => l.id === selectedLedId.value) || product.ledPresets[0];
+  const selectedAudio = product.audioTracks.find(a => a.id === selectedAudioTrackId.value) || product.audioTracks[0];
+  const frequencyBars = calculateFrequencyBars(selectedAudio.waveformPeaks, isAudioPlaying.value ? audioTimeOffset.value : 0);
   const countdown = calculateFlashSaleCountdown(flashSaleSeconds.value);
   const currentSocial = product.socialPurchases[activeSocialPurchaseIndex.value];
 
@@ -130,7 +140,7 @@ export default component$(() => {
 
   const totals = calculateCartTotals(cartStore.items, appliedPromo.value);
   const filteredReviews = filterReviews(product.reviews, ratingFilter.value);
-  const snapshot = getResumableSnapshot(cartStore.items, selectedVariantId.value, selectedLedId.value, rotationAngle.value, flashSaleSeconds.value);
+  const snapshot = getResumableSnapshot(cartStore.items, selectedVariantId.value, selectedLedId.value, rotationAngle.value, flashSaleSeconds.value, selectedAudioTrackId.value);
   const totalCartCount = cartStore.items.reduce((acc, item) => acc + item.quantity, 0);
 
   return (
@@ -148,7 +158,7 @@ export default component$(() => {
       <header class="navbar">
         <a href="#" class="brand-logo">
           ⚡ NEXUS<span style="color: var(--accent-cyan);">CYBER</span>
-          <span class="brand-badge">Qwik Live Engine</span>
+          <span class="brand-badge">Qwik Sound Engine</span>
         </a>
         <div class="nav-actions">
           <button
@@ -228,7 +238,7 @@ export default component$(() => {
           </div>
         </div>
 
-        {/* Product Purchase & Live Stock Controls */}
+        {/* Product Purchase & Controls */}
         <div class="product-details">
           <div>
             <h1 class="product-title">{product.title}</h1>
@@ -315,6 +325,79 @@ export default component$(() => {
         </div>
       </main>
 
+      {/* Audio Frequency Visualizer & Sound Demo Player Section */}
+      <section style="background: var(--bg-card); border: 1px solid var(--accent-cyan); border-radius: var(--radius-lg); padding: 24px; margin-bottom: 40px; box-shadow: 0 0 25px rgba(0, 246, 255, 0.15);">
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 16px; margin-bottom: 20px;">
+          <div>
+            <h2 style="font-size: 20px; font-weight: 800; color: #fff; display: flex; align-items: center; gap: 10px;">
+              🎵 Interactive Audio Frequency Visualizer & Sound Demo Player
+            </h2>
+            <p style="font-size: 13px; color: var(--text-muted); margin-top: 4px;">
+              Test planar magnetic bass response, ANC isolation, and 3D spatial surround sound directly in your browser.
+            </p>
+          </div>
+          <button
+            type="button"
+            class="variant-btn active"
+            style="padding: 10px 20px; font-size: 15px; border-color: var(--accent-cyan);"
+            onClick$={$(() => isAudioPlaying.value = !isAudioPlaying.value)}
+          >
+            {isAudioPlaying.value ? '⏸ Pause Demo' : '▶ Play Sound Demo'}
+          </button>
+        </div>
+
+        {/* Track Selector Row */}
+        <div style="display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap;">
+          {product.audioTracks.map((tr) => (
+            <button
+              key={tr.id}
+              type="button"
+              class={`variant-btn ${tr.id === selectedAudioTrackId.value ? 'active' : ''}`}
+              style="flex: 1; min-width: 240px; text-align: left; display: block; padding: 12px 16px;"
+              onClick$={$(() => {
+                selectedAudioTrackId.value = tr.id;
+                isAudioPlaying.value = true;
+              })}
+            >
+              <strong style="font-size: 14px; color: #fff; display: block;">{tr.title}</strong>
+              <span style="font-size: 12px; color: var(--text-muted); display: block; margin-top: 2px;">{tr.genre}</span>
+            </button>
+          ))}
+        </div>
+
+        {/* Interactive Audio Frequency Equalizer Canvas Bar Spectrum */}
+        <div style="background: rgba(0, 0, 0, 0.4); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; padding: 20px; text-align: center;">
+          <div style="display: flex; justify-content: space-between; align-items: flex-end; height: 100px; gap: 8px; max-width: 700px; margin: 0 auto;">
+            {frequencyBars.map((height, idx) => (
+              <div
+                key={idx}
+                style={{
+                  flex: 1,
+                  height: `${height}%`,
+                  background: isAudioPlaying.value
+                    ? `linear-gradient(to top, var(--accent-cyan), var(--accent-magenta))`
+                    : 'rgba(255, 255, 255, 0.15)',
+                  borderRadius: '4px 4px 0 0',
+                  transition: 'height 0.1s ease'
+                }}
+              ></div>
+            ))}
+          </div>
+
+          <div style="display: flex; justify-content: space-between; margin-top: 12px; font-size: 11px; color: var(--text-muted); max-width: 700px; margin: 12px auto 0 auto;">
+            <span>20Hz Sub-Bass</span>
+            <span>250Hz Mid-Bass</span>
+            <span>1kHz Midrange</span>
+            <span>4kHz Treble</span>
+            <span>20kHz Ultra-High</span>
+          </div>
+
+          <p style="font-size: 13px; color: var(--accent-cyan); font-weight: 600; margin-top: 16px;">
+            ℹ️ {selectedAudio.description}
+          </p>
+        </div>
+      </section>
+
       {/* Social Proof Live Purchase Toast Popup */}
       {showToast.value && currentSocial && (
         <div style="position: fixed; bottom: 20px; left: 20px; z-index: 150; background: rgba(15, 23, 42, 0.95); border: 1px solid var(--accent-cyan); border-radius: 12px; padding: 12px 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.6); backdrop-filter: blur(12px); display: flex; align-items: center; gap: 12px; transition: opacity 0.3s ease;">
@@ -335,7 +418,7 @@ export default component$(() => {
         <div class="resumability-header">
           <div>
             <h2 style="font-size: 18px; font-weight: 800; color: var(--accent-cyan);">
-              ⚡ Qwik Resumable State Engine Audit (Flash Sale + Live Stock)
+              ⚡ Qwik Resumable State Engine Audit (Sound Demo Engine)
             </h2>
             <p style="font-size: 13px; color: var(--text-muted); margin-top: 4px;">
               Zero Hydration Delay — HTML contains pre-serialized application state without downloading JS hydration bundles!
@@ -360,8 +443,8 @@ export default component$(() => {
             <div style="font-size: 11px; color: var(--text-muted);">Resumable JSON Payload</div>
           </div>
           <div style="background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; padding: 10px;">
-            <div style="font-size: 18px; font-weight: 700; color: var(--accent-magenta);">{countdown.formatted}</div>
-            <div style="font-size: 11px; color: var(--text-muted);">Live Flash Countdown</div>
+            <div style="font-size: 18px; font-weight: 700; color: var(--accent-cyan);">{selectedAudio.title.split(' ')[0]}</div>
+            <div style="font-size: 11px; color: var(--text-muted);">Active Audio Track Store</div>
           </div>
         </div>
       </section>
@@ -537,11 +620,11 @@ export default component$(() => {
 });
 
 export const head: DocumentHead = {
-  title: 'Nexus Apex Pro Wireless ANC Headphones | Qwik Flash Sale',
+  title: 'Nexus Apex Pro Wireless ANC Headphones | Qwik Sound Engine',
   meta: [
     {
       name: 'description',
-      content: 'Instant load, resumable state Qwik E-commerce product page with real-time flash sale countdown and live stock counter.'
+      content: 'Instant load, resumable state Qwik E-commerce product page with interactive audio frequency visualizer and sound demo player.'
     }
   ]
 };

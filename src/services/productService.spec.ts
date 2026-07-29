@@ -1,6 +1,6 @@
 // src/services/productService.spec.ts
 // Vitest unit tests for Build 49 Product Service.
-// Updated: 2026-07-29 for Iteration 3
+// Updated: 2026-07-29 for Iteration 4
 
 import { describe, it, expect } from 'vitest';
 import {
@@ -10,11 +10,12 @@ import {
   filterReviews,
   getResumableSnapshot,
   calculate360Rotation,
-  calculateFlashSaleCountdown
+  calculateFlashSaleCountdown,
+  calculateFrequencyBars
 } from './productService';
 
 describe('productService', () => {
-  it('retrieves valid product catalog data with variants, specs, and social purchases', () => {
+  it('retrieves valid product catalog data with variants, specs, social purchases, and audio tracks', () => {
     const data = getProductData();
     expect(data.id).toBe('apex-pro-cyber-v1');
     expect(data.variants.length).toBe(3);
@@ -22,6 +23,17 @@ describe('productService', () => {
     expect(data.reviews.length).toBeGreaterThan(0);
     expect(data.ledPresets.length).toBe(5);
     expect(data.socialPurchases.length).toBe(4);
+    expect(data.audioTracks.length).toBe(3);
+  });
+
+  it('calculates audio frequency visualizer bar heights dynamically', () => {
+    const peaks = [40, 85, 95, 60];
+    const bars1 = calculateFrequencyBars(peaks, 0);
+    expect(bars1.length).toBe(4);
+    expect(bars1.every(b => b >= 15 && b <= 100)).toBe(true);
+
+    const bars2 = calculateFrequencyBars(peaks, 1.5);
+    expect(bars2).not.toEqual(bars1);
   });
 
   it('calculates Flash Sale countdown time formats correctly', () => {
@@ -78,14 +90,14 @@ describe('productService', () => {
     expect(fiveStars.every(r => r.rating >= 5)).toBe(true);
   });
 
-  it('generates serialized resumable state snapshot with 0ms hydration cost and Flash Sale state', () => {
+  it('generates serialized resumable state snapshot with 0ms hydration cost and Audio Demo state', () => {
     const items = [
       { variantId: 'var-cyber-black', name: 'Cyber Onyx', price: 349.99, image: '', quantity: 1 }
     ];
-    const snapshot = getResumableSnapshot(items, 'var-cyber-black', 'led-magenta', 180, 14400);
+    const snapshot = getResumableSnapshot(items, 'var-cyber-black', 'led-magenta', 180, 14400, 'tr-bass');
 
     expect(snapshot.hydrationCostMs).toBe(0.0);
-    expect(snapshot.serializedObjectsCount).toBe(5);
+    expect(snapshot.serializedObjectsCount).toBe(6);
     expect(snapshot.payloadSizeBytes).toBeGreaterThan(0);
   });
 });

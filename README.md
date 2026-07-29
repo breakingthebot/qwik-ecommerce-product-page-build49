@@ -2,8 +2,8 @@
 
 [![Vercel Deployment](https://img.shields.io/badge/Vercel-Live%20Demo-000000?style=for-the-badge&logo=vercel)](https://qwik-ecommerce-product-page-build49.vercel.app)
 [![GitHub Repository](https://img.shields.io/badge/GitHub-Repository-181717?style=for-the-badge&logo=github)](https://github.com/breakingthebot/qwik-ecommerce-product-page-build49)
-[![Tests](https://img.shields.io/badge/Vitest-7%20Passed-6E9F18?style=for-the-badge&logo=vitest)](file:///C:/Users/marve/Desktop/AI-286-Builds/Build_49/src/services/productService.spec.ts)
-[![Version](https://img.shields.io/badge/Release-v0.3.0-blue?style=for-the-badge)](file:///C:/Users/marve/Desktop/AI-286-Builds/Build_49/CHANGELOG.md)
+[![Tests](https://img.shields.io/badge/Vitest-8%20Passed-6E9F18?style=for-the-badge&logo=vitest)](file:///C:/Users/marve/Desktop/AI-286-Builds/Build_49/src/services/productService.spec.ts)
+[![Version](https://img.shields.io/badge/Release-v0.4.0-blue?style=for-the-badge)](file:///C:/Users/marve/Desktop/AI-286-Builds/Build_49/CHANGELOG.md)
 
 ---
 
@@ -20,6 +20,7 @@
 ## 🔥 Key Features
 
 - **⚡ Instant Load Resumable State Architecture**: 0ms hydration execution delay via Qwik's fine-grained chunk serialization (`$`).
+- **🎵 Interactive Audio Frequency Visualizer & Sound Demo Player**: Play audio sound demos (*Cyberpunk Sub-Bass*, *Hybrid ANC Isolation*, *3D Spatial Surround*) with real-time spectrum visualizer canvas bars.
 - **⏳ Real-Time Flash Sale Countdown**: Live ticking countdown timer (`03:59:52`) with 15% discount promo code integration (`QWIK15`).
 - **🔴 Live Inventory Stock Progress Bar**: Dynamic stock warning indicator with visual capacity bar.
 - **💬 Social Proof Purchase Toasts**: Rotating live purchase notifications ("Someone in Tokyo 🇯🇵 purchased Neon Cyberpunk 2 mins ago").
