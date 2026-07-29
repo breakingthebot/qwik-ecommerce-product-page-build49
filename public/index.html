@@ -2,9 +2,9 @@
 <html lang="en" q:container="paused" q:slot="disabled" q:version="1.20.0">
   <head>
     <meta charset="utf-8" />
-    <title>Nexus Apex Pro Wireless ANC Headphones | Qwik E-Commerce</title>
+    <title>Nexus Apex Pro Wireless ANC Headphones | Qwik 360° Customizer</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Instant load, resumable state Qwik E-commerce product page with zero hydration delay." />
+    <meta name="description" content="Instant load, resumable state Qwik E-commerce product page with 360-degree interactive rotator and LED customizer." />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <style>
       :root {
@@ -41,8 +41,9 @@
       .cart-badge { background: var(--accent-magenta); color: #fff; border-radius: 50%; width: 20px; height: 20px; font-size: 11px; display: flex; align-items: center; justify-content: center; font-weight: 700; }
       .product-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-bottom: 48px; }
       @media (max-width: 900px) { .product-grid { grid-template-columns: 1fr; } }
-      .main-image-frame { position: relative; background: var(--bg-card); border: 1px solid var(--border-glow); border-radius: var(--radius-lg); overflow: hidden; aspect-ratio: 4/3; display: flex; align-items: center; justify-content: center; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5); }
-      .main-image-frame img { width: 100%; height: 100%; object-fit: cover; }
+      .main-image-frame { position: relative; background: var(--bg-card); border: 1px solid var(--border-glow); border-radius: var(--radius-lg); overflow: hidden; aspect-ratio: 4/3; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 25px rgba(0, 246, 255, 0.8); cursor: grab; user-select: none; }
+      .main-image-frame:active { cursor: grabbing; }
+      .main-image-frame img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.1s ease; }
       .image-badge-tag { position: absolute; top: 16px; left: 16px; background: rgba(0, 246, 255, 0.15); border: 1px solid var(--accent-cyan); color: var(--accent-cyan); font-size: 12px; font-weight: 700; padding: 6px 12px; border-radius: 20px; }
       .product-details { display: flex; flex-direction: column; gap: 20px; }
       .product-title { font-size: 32px; font-weight: 800; line-height: 1.2; }
@@ -74,7 +75,7 @@
       <header class="navbar">
         <a href="#" class="brand-logo">
           ⚡ NEXUS<span style="color: var(--accent-cyan);">CYBER</span>
-          <span class="brand-badge">Qwik Resumable</span>
+          <span class="brand-badge">Qwik 360° Customizer</span>
         </a>
         <div class="nav-actions">
           <button type="button" id="cartBtn" class="cart-icon-btn">
@@ -85,9 +86,16 @@
 
       <main class="product-grid">
         <div class="product-gallery">
-          <div class="main-image-frame">
+          <div id="imageFrame" class="main-image-frame">
             <img id="mainImage" src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&auto=format&fit=crop&q=80" alt="Cyber Onyx" width="800" height="600" />
             <span id="badgeTag" class="image-badge-tag">🔥 Popular Choice</span>
+            <span id="angleBadge" class="image-badge-tag" style="left: auto; right: 16px; background: rgba(139, 92, 246, 0.2); border-color: var(--accent-purple); color: var(--accent-purple);">🔄 360° Angle: 0°</span>
+            <div id="ledOverlay" style="position: absolute; inset: 0; pointer-events: none; background: radial-gradient(circle at 50% 50%, rgba(0, 246, 255, 0.25) 0%, transparent 70%);"></div>
+          </div>
+
+          <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 10px 16px;">
+            <span style="font-size: 13px; color: var(--text-muted);">👉 Drag horizontally to rotate 360°</span>
+            <button type="button" id="spinBtn" class="variant-btn" style="padding: 4px 12px; font-size: 12px;">↺ Spin 45°</button>
           </div>
         </div>
 
@@ -125,6 +133,28 @@
             </div>
           </div>
 
+          <!-- LED Accent Light Customizer -->
+          <div class="variant-section">
+            <span class="variant-label">Custom LED Accent Light: <strong id="selectedLedName" style="color: #00f6ff;">Cyber Cyan</strong></span>
+            <div class="variant-options" style="flex-wrap: wrap;">
+              <button type="button" class="led-btn variant-btn active" data-hex="#00f6ff" data-name="Cyber Cyan" data-shadow="0 0 25px rgba(0, 246, 255, 0.8)">
+                <span class="color-dot" style="background-color: #00f6ff; box-shadow: 0 0 8px #00f6ff;"></span> Cyber Cyan
+              </button>
+              <button type="button" class="led-btn variant-btn" data-hex="#ff007f" data-name="Neon Magenta" data-shadow="0 0 25px rgba(255, 0, 127, 0.8)">
+                <span class="color-dot" style="background-color: #ff007f; box-shadow: 0 0 8px #ff007f;"></span> Neon Magenta
+              </button>
+              <button type="button" class="led-btn variant-btn" data-hex="#fbbf24" data-name="Solar Amber" data-shadow="0 0 25px rgba(251, 191, 36, 0.8)">
+                <span class="color-dot" style="background-color: #fbbf24; box-shadow: 0 0 8px #fbbf24;"></span> Solar Amber
+              </button>
+              <button type="button" class="led-btn variant-btn" data-hex="#10b981" data-name="Matrix Emerald" data-shadow="0 0 25px rgba(16, 185, 129, 0.8)">
+                <span class="color-dot" style="background-color: #10b981; box-shadow: 0 0 8px #10b981;"></span> Matrix Emerald
+              </button>
+              <button type="button" class="led-btn variant-btn" data-hex="#a855f7" data-name="Plasma Violet" data-shadow="0 0 25px rgba(168, 85, 247, 0.8)">
+                <span class="color-dot" style="background-color: #a855f7; box-shadow: 0 0 8px #a855f7;"></span> Plasma Violet
+              </button>
+            </div>
+          </div>
+
           <div class="action-buttons">
             <button type="button" id="addToCartBtn" class="btn-primary">
               🛒 Add to Resumable Cart (<span id="btnPrice">$349.99</span>)
@@ -136,7 +166,7 @@
       <section class="resumability-card">
         <div class="resumability-header">
           <div>
-            <h2 style="font-size: 18px; font-weight: 800; color: var(--accent-cyan);">⚡ Qwik Resumable State Engine Audit</h2>
+            <h2 style="font-size: 18px; font-weight: 800; color: var(--accent-cyan);">⚡ Qwik Resumable State Engine Audit (360° + LED Engine)</h2>
             <p style="font-size: 13px; color: var(--text-muted); margin-top: 4px;">Zero Hydration Delay — HTML contains pre-serialized application state without downloading JS hydration bundles!</p>
           </div>
           <span class="brand-badge" style="background: rgba(0, 246, 255, 0.2); color: var(--accent-cyan); border: 1px solid var(--accent-cyan);">0.0 ms Hydration Delay</span>
@@ -148,16 +178,16 @@
             <div style="font-size: 11px; color: var(--text-muted);">Hydration Execution Time</div>
           </div>
           <div style="background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; padding: 10px;">
-            <div id="serializedStoresCount" style="font-size: 18px; font-weight: 700; color: var(--accent-cyan);">3</div>
+            <div id="serializedStoresCount" style="font-size: 18px; font-weight: 700; color: var(--accent-cyan);">4</div>
             <div style="font-size: 11px; color: var(--text-muted);">Serialized Qwik Stores</div>
           </div>
           <div style="background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; padding: 10px;">
-            <div id="payloadSizeLabel" style="font-size: 18px; font-weight: 700; color: var(--accent-purple);">184 B</div>
+            <div id="payloadSizeLabel" style="font-size: 18px; font-weight: 700; color: var(--accent-purple);">228 B</div>
             <div style="font-size: 11px; color: var(--text-muted);">Resumable JSON Payload</div>
           </div>
           <div style="background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; padding: 10px;">
-            <div id="activeVariantLabel" style="font-size: 18px; font-weight: 700; color: var(--accent-magenta);">Cyber Onyx</div>
-            <div style="font-size: 11px; color: var(--text-muted);">Active Variant Store</div>
+            <div id="activeVariantLabel" style="font-size: 18px; font-weight: 700; color: #00f6ff;">Cyber Cyan</div>
+            <div style="font-size: 11px; color: var(--text-muted);">Active LED Accent Store</div>
           </div>
         </div>
       </section>
@@ -232,7 +262,7 @@
         <div style="display: flex; gap: 12px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 10px; align-items: center;">
           <img id="cartItemImg" src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&auto=format&fit=crop&q=80" width="50" height="50" style="object-fit: cover; border-radius: 6px;" />
           <div style="flex: 1;">
-            <strong id="cartItemTitle" style="font-size: 13px; color: #fff; display: block;">Nexus Apex Pro (Cyber Onyx)</strong>
+            <strong id="cartItemTitle" style="font-size: 13px; color: #fff; display: block;">Nexus Apex Pro (Cyber Onyx + Cyber Cyan LED)</strong>
             <span id="cartItemPrice" style="font-size: 13px; color: var(--accent-cyan); font-weight: 700;">$349.99</span>
           </div>
           <div style="display: flex; align-items: center; gap: 6px;">
@@ -281,6 +311,55 @@
       const cartDrawer = document.getElementById('cartDrawer');
       const cartBackdrop = document.getElementById('cartBackdrop');
       const addToCartBtn = document.getElementById('addToCartBtn');
+      const imageFrame = document.getElementById('imageFrame');
+      const mainImage = document.getElementById('mainImage');
+      const angleBadge = document.getElementById('angleBadge');
+      const spinBtn = document.getElementById('spinBtn');
+
+      let currentAngle = 0;
+      let isDragging = false;
+      let startX = 0;
+      let activeLedName = 'Cyber Cyan';
+
+      // 360 Drag
+      imageFrame.addEventListener('mousedown', (e) => {
+        isDragging = true;
+        startX = e.clientX;
+      });
+      window.addEventListener('mousemove', (e) => {
+        if (!isDragging) return;
+        const deltaX = e.clientX - startX;
+        startX = e.clientX;
+        currentAngle = (currentAngle + deltaX * 0.8) % 360;
+        if (currentAngle < 0) currentAngle += 360;
+        mainImage.style.transform = `rotateY(${currentAngle}deg)`;
+        angleBadge.innerText = '🔄 360° Angle: ' + Math.round(currentAngle) + '°';
+      });
+      window.addEventListener('mouseup', () => { isDragging = false; });
+
+      spinBtn.addEventListener('click', () => {
+        currentAngle = (currentAngle + 45) % 360;
+        mainImage.style.transform = `rotateY(${currentAngle}deg)`;
+        angleBadge.innerText = '🔄 360° Angle: ' + Math.round(currentAngle) + '°';
+      });
+
+      // LED Accent Customizer
+      const ledBtns = document.querySelectorAll('.led-btn');
+      ledBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          ledBtns.forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          const hex = btn.dataset.hex;
+          const shadow = btn.dataset.shadow;
+          activeLedName = btn.dataset.name;
+          document.getElementById('selectedLedName').innerText = activeLedName;
+          document.getElementById('selectedLedName').style.color = hex;
+          document.getElementById('activeVariantLabel').innerText = activeLedName;
+          document.getElementById('activeVariantLabel').style.color = hex;
+          imageFrame.style.boxShadow = shadow;
+          document.getElementById('ledOverlay').style.background = `radial-gradient(circle at 50% 50%, ${hex}40 0%, transparent 70%)`;
+        });
+      });
 
       function openCart() { cartDrawer.classList.add('open'); cartBackdrop.classList.add('open'); }
       function closeCart() { cartDrawer.classList.remove('open'); cartBackdrop.classList.remove('open'); }
@@ -307,8 +386,7 @@
           document.getElementById('originalPrice').innerText = '$' + btn.dataset.orig;
           document.getElementById('btnPrice').innerText = '$' + price.toFixed(2);
           document.getElementById('selectedVariantName').innerText = btn.dataset.name;
-          document.getElementById('activeVariantLabel').innerText = btn.dataset.name;
-          document.getElementById('cartItemTitle').innerText = 'Nexus Apex Pro (' + btn.dataset.name + ')';
+          document.getElementById('cartItemTitle').innerText = 'Nexus Apex Pro (' + btn.dataset.name + ' + ' + activeLedName + ' LED)';
           document.getElementById('cartItemPrice').innerText = '$' + price.toFixed(2);
           document.getElementById('stockIndicator').innerText = '🟢 ' + btn.dataset.stock + ' items in stock (Ready for Instant Dispatch)';
           updateCart();

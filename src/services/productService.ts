@@ -1,6 +1,6 @@
 // src/services/productService.ts
 // Business Logic & Product Engine for Build 49 - Qwik E-Commerce Product Page.
-// Created: 2026-07-28
+// Updated: 2026-07-29 for Iteration 2 (360-Degree 3D Rotator & LED Customizer)
 
 export interface ProductVariant {
   id: string;
@@ -30,6 +30,14 @@ export interface CartItem {
   price: number;
   image: string;
   quantity: number;
+  ledColor?: string;
+}
+
+export interface LedPreset {
+  id: string;
+  name: string;
+  hex: string;
+  glowShadow: string;
 }
 
 export interface ProductData {
@@ -43,6 +51,7 @@ export interface ProductData {
   features: string[];
   specs: Record<string, string>;
   reviews: ProductReview[];
+  ledPresets: LedPreset[];
 }
 
 /**
@@ -86,6 +95,13 @@ export function getProductData(): ProductData {
         stock: 22,
         image: 'https://images.unsplash.com/photo-1583394838336-acd977736f90?w=800&auto=format&fit=crop&q=80'
       }
+    ],
+    ledPresets: [
+      { id: 'led-cyan', name: 'Cyber Cyan', hex: '#00f6ff', glowShadow: '0 0 25px rgba(0, 246, 255, 0.8)' },
+      { id: 'led-magenta', name: 'Neon Magenta', hex: '#ff007f', glowShadow: '0 0 25px rgba(255, 0, 127, 0.8)' },
+      { id: 'led-gold', name: 'Solar Amber', hex: '#fbbf24', glowShadow: '0 0 25px rgba(251, 191, 36, 0.8)' },
+      { id: 'led-emerald', name: 'Matrix Emerald', hex: '#10b981', glowShadow: '0 0 25px rgba(16, 185, 129, 0.8)' },
+      { id: 'led-purple', name: 'Plasma Violet', hex: '#a855f7', glowShadow: '0 0 25px rgba(168, 85, 247, 0.8)' }
     ],
     features: [
       '⚡ Qwik Instant Load Resumable State Architecture (0ms Hydration Delay)',
@@ -135,6 +151,27 @@ export function getProductData(): ProductData {
         verified: true
       }
     ]
+  };
+}
+
+/**
+ * Calculates the current 360 degree rotation angle and frame index from drag delta.
+ */
+export function calculate360Rotation(currentAngle: number, deltaX: number, sensitivity = 0.5): {
+  angle: number;
+  frameIndex: number;
+  normalizedDeg: string;
+} {
+  let newAngle = (currentAngle + deltaX * sensitivity) % 360;
+  if (newAngle < 0) newAngle += 360;
+  
+  const totalFrames = 24; // 24 angles around 360deg
+  const frameIndex = Math.floor((newAngle / 360) * totalFrames) % totalFrames;
+
+  return {
+    angle: Number(newAngle.toFixed(1)),
+    frameIndex,
+    normalizedDeg: `${Math.round(newAngle)}°`
   };
 }
 
@@ -193,15 +230,15 @@ export function filterReviews(reviews: ProductReview[], minRating = 0): ProductR
 /**
  * Generates serialized resumable state metadata snapshot.
  */
-export function getResumableSnapshot(cartItems: CartItem[], selectedVariantId: string): {
+export function getResumableSnapshot(cartItems: CartItem[], selectedVariantId: string, ledColor = 'led-cyan', rotationAngle = 0): {
   serializedObjectsCount: number;
   resumabilityKey: string;
   hydrationCostMs: number;
   payloadSizeBytes: number;
 } {
-  const payload = JSON.stringify({ cartItems, selectedVariantId });
+  const payload = JSON.stringify({ cartItems, selectedVariantId, ledColor, rotationAngle });
   return {
-    serializedObjectsCount: cartItems.length + 2,
+    serializedObjectsCount: cartItems.length + 3,
     resumabilityKey: `qwik:store:${Date.now().toString(36)}`,
     hydrationCostMs: 0.0, // Qwik zero hydration delay
     payloadSizeBytes: new Blob([payload]).size

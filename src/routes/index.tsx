@@ -6,6 +6,7 @@ import {
   formatCurrency,
   filterReviews,
   getResumableSnapshot,
+  calculate360Rotation,
   type CartItem
 } from '../services/productService';
 
@@ -14,6 +15,9 @@ export default component$(() => {
 
   // Qwik Resumable Reactive State
   const selectedVariantId = useSignal(product.variants[0].id);
+  const selectedLedId = useSignal(product.ledPresets[0].id);
+  const rotationAngle = useSignal<number>(0);
+  const isAutoSpinning = useSignal<boolean>(false);
   const activeTab = useSignal<'features' | 'specs' | 'reviews'>('features');
   const ratingFilter = useSignal<number>(0);
   const isCartOpen = useSignal(false);
@@ -27,12 +31,18 @@ export default component$(() => {
         name: `${product.title} (${product.variants[0].name})`,
         price: product.variants[0].price,
         image: product.variants[0].image,
-        quantity: 1
+        quantity: 1,
+        ledColor: product.ledPresets[0].name
       }
     ]
   });
 
   const selectedVariant = product.variants.find(v => v.id === selectedVariantId.value) || product.variants[0];
+  const selectedLed = product.ledPresets.find(l => l.id === selectedLedId.value) || product.ledPresets[0];
+
+  // Drag 360 state
+  const isDragging = useSignal(false);
+  const startX = useSignal(0);
 
   // Resumable Action Handlers ($ serializes function boundaries for Qwik resumability)
   const addToCart$ = $(() => {
@@ -42,10 +52,11 @@ export default component$(() => {
     } else {
       cartStore.items.push({
         variantId: selectedVariant.id,
-        name: `${product.title} (${selectedVariant.name})`,
+        name: `${product.title} (${selectedVariant.name} + ${selectedLed.name} LED)`,
         price: selectedVariant.price,
         image: selectedVariant.image,
-        quantity: 1
+        quantity: 1,
+        ledColor: selectedLed.name
       });
     }
     isCartOpen.value = true;
@@ -71,9 +82,26 @@ export default component$(() => {
     appliedPromo.value = promoCodeInput.value.trim();
   });
 
+  const handleMouseDown$ = $((e: MouseEvent) => {
+    isDragging.value = true;
+    startX.value = e.clientX;
+  });
+
+  const handleMouseMove$ = $((e: MouseEvent) => {
+    if (!isDragging.value) return;
+    const deltaX = e.clientX - startX.value;
+    startX.value = e.clientX;
+    const rot = calculate360Rotation(rotationAngle.value, deltaX, 0.8);
+    rotationAngle.value = rot.angle;
+  });
+
+  const handleMouseUp$ = $(() => {
+    isDragging.value = false;
+  });
+
   const totals = calculateCartTotals(cartStore.items, appliedPromo.value);
   const filteredReviews = filterReviews(product.reviews, ratingFilter.value);
-  const snapshot = getResumableSnapshot(cartStore.items, selectedVariantId.value);
+  const snapshot = getResumableSnapshot(cartStore.items, selectedVariantId.value, selectedLedId.value, rotationAngle.value);
   const totalCartCount = cartStore.items.reduce((acc, item) => acc + item.quantity, 0);
 
   return (
@@ -82,7 +110,7 @@ export default component$(() => {
       <header class="navbar">
         <a href="#" class="brand-logo">
           ⚡ NEXUS<span style="color: var(--accent-cyan);">CYBER</span>
-          <span class="brand-badge">Qwik Resumable</span>
+          <span class="brand-badge">Qwik 360° Customizer</span>
         </a>
         <div class="nav-actions">
           <button
@@ -98,23 +126,71 @@ export default component$(() => {
 
       {/* Main Product Showcase Grid */}
       <main class="product-grid">
-        {/* Media Gallery Showcase */}
+        {/* 360 Degree Interactive Media Gallery */}
         <div class="product-gallery">
-          <div class="main-image-frame">
+          <div
+            class="main-image-frame"
+            style={{
+              boxShadow: selectedLed.glowShadow,
+              cursor: isDragging.value ? 'grabbing' : 'grab',
+              userSelect: 'none'
+            }}
+            onMouseDown$={handleMouseDown$}
+            onMouseMove$={handleMouseMove$}
+            onMouseUp$={handleMouseUp$}
+            onMouseLeave$={handleMouseUp$}
+          >
             <img
               src={selectedVariant.image}
               alt={selectedVariant.name}
               width="800"
               height="600"
               loading="eager"
+              style={{
+                transform: `rotateY(${rotationAngle.value}deg)`,
+                transition: isDragging.value ? 'none' : 'transform 0.1s ease'
+              }}
             />
             {selectedVariant.badge && (
               <span class="image-badge-tag">🔥 {selectedVariant.badge}</span>
             )}
+            <span
+              class="image-badge-tag"
+              style="left: auto; right: 16px; background: rgba(139, 92, 246, 0.2); border-color: var(--accent-purple); color: var(--accent-purple);"
+            >
+              🔄 360° Angle: {Math.round(rotationAngle.value)}°
+            </span>
+
+            {/* LED Accent Glow Canvas Overlay */}
+            <div
+              style={{
+                position: 'absolute',
+                inset: 0,
+                pointerEvents: 'none',
+                background: `radial-gradient(circle at 50% 50%, ${selectedLed.hex}25 0%, transparent 70%)`
+              }}
+            ></div>
+          </div>
+
+          <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 10px 16px;">
+            <span style="font-size: 13px; color: var(--text-muted);">👉 Drag horizontally to rotate 360°</span>
+            <button
+              type="button"
+              class={`variant-btn ${isAutoSpinning.value ? 'active' : ''}`}
+              style="padding: 4px 12px; font-size: 12px;"
+              onClick$={$(() => {
+                isAutoSpinning.value = !isAutoSpinning.value;
+                if (isAutoSpinning.value) {
+                  rotationAngle.value = (rotationAngle.value + 45) % 360;
+                }
+              })}
+            >
+              ↺ {isAutoSpinning.value ? 'Auto-Spin Active' : 'Spin 45°'}
+            </button>
           </div>
         </div>
 
-        {/* Product Purchase Controls */}
+        {/* Product Purchase & LED Controls */}
         <div class="product-details">
           <div>
             <h1 class="product-title">{product.title}</h1>
@@ -154,6 +230,28 @@ export default component$(() => {
             </div>
           </div>
 
+          {/* LED Accent Light Customizer */}
+          <div class="variant-section">
+            <span class="variant-label">Custom LED Accent Light: <strong style={{ color: selectedLed.hex }}>{selectedLed.name}</strong></span>
+            <div class="variant-options" style="flex-wrap: wrap;">
+              {product.ledPresets.map((led) => (
+                <button
+                  key={led.id}
+                  type="button"
+                  class={`variant-btn ${led.id === selectedLedId.value ? 'active' : ''}`}
+                  style={{
+                    borderColor: led.id === selectedLedId.value ? led.hex : 'rgba(255,255,255,0.1)',
+                    boxShadow: led.id === selectedLedId.value ? led.glowShadow : 'none'
+                  }}
+                  onClick$={$(() => selectedLedId.value = led.id)}
+                >
+                  <span class="color-dot" style={{ backgroundColor: led.hex, boxShadow: `0 0 8px ${led.hex}` }}></span>
+                  {led.name}
+                </button>
+              ))}
+            </div>
+          </div>
+
           {/* Add to Cart Action Bar */}
           <div class="action-buttons">
             <button
@@ -172,7 +270,7 @@ export default component$(() => {
         <div class="resumability-header">
           <div>
             <h2 style="font-size: 18px; font-weight: 800; color: var(--accent-cyan);">
-              ⚡ Qwik Resumable State Engine Audit
+              ⚡ Qwik Resumable State Engine Audit (360° + LED Engine)
             </h2>
             <p style="font-size: 13px; color: var(--text-muted); margin-top: 4px;">
               Zero Hydration Delay — HTML contains pre-serialized application state without downloading JS hydration bundles!
@@ -197,8 +295,8 @@ export default component$(() => {
             <div style="font-size: 11px; color: var(--text-muted);">Resumable JSON Payload</div>
           </div>
           <div style="background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; padding: 10px;">
-            <div style="font-size: 18px; font-weight: 700; color: var(--accent-magenta);">{selectedVariant.name}</div>
-            <div style="font-size: 11px; color: var(--text-muted);">Active Variant Store</div>
+            <div style="font-size: 18px; font-weight: 700; color: selectedLed.hex;">{selectedLed.name}</div>
+            <div style="font-size: 11px; color: var(--text-muted);">Active LED Accent Store</div>
           </div>
         </div>
       </section>
@@ -378,7 +476,7 @@ export const head: DocumentHead = {
   meta: [
     {
       name: 'description',
-      content: 'Instant load, resumable state Qwik E-commerce product page with zero hydration delay.'
+      content: 'Instant load, resumable state Qwik E-commerce product page with 360-degree rotator and LED customizer.'
     }
   ]
 };
