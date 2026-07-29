@@ -5,6 +5,15 @@ All notable changes to **Build 49 (Qwik E-Commerce Product Page)** will be docum
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.8.0] - 2026-07-29
+
+### Added
+- Integrated **WebXR Augmented Reality (AR) Spatial Model Viewer** in `src/services/productService.ts` and `src/routes/index.tsx`.
+- Added `getArMetadata` helper (1:1 scale ratios, USDZ/GLB model links, QR code generator) and studio lighting options (`arLightingPresets`: Cyber Neon, Studio Daylight, Darkroom Ambient).
+- Added **🥽 View in AR / 3D** buttons in navbar, gallery, and action bar opening AR viewport modal overlay (`isArOpen`).
+- Restored standard Qwik template string styles for maximum compilation speed and hydration performance.
+- Updated unit tests in `src/services/productService.spec.ts` (12 passing unit tests).
+
 ## [0.7.0] - 2026-07-29
 
 ### Added
@@ -58,7 +67,3 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - Initialized **Build 49 — Qwik E-Commerce Product Page** with Qwik City, Vite, Express, and Vitest.
-- Created `productService.ts` domain service providing catalog metadata, cart totals calculator, promo discount logic, star rating filters, and resumable state snapshot metadata.
-- Built interactive Qwik product page in `src/routes/index.tsx` featuring colorway variant picker, price/stock indicators, resumable cart drawer, tabbed spec drawers, and Qwik Resumability Audit Banner (0ms hydration execution delay).
-- Built modern cyberpunk glassmorphism design system in `src/global.css`.
-- Added 5 passing Vitest unit tests in `src/services/productService.spec.ts`.

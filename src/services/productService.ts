@@ -1,6 +1,6 @@
 // src/services/productService.ts
 // Business Logic & Product Engine for Build 49 - Qwik E-Commerce Product Page.
-// Updated: 2026-07-29 for Iteration 7 (Qwik Interactive Sound Profile Equalizer)
+// Updated: 2026-07-29 for Iteration 8 (Qwik AR Spatial Model Viewer)
 
 export interface ProductVariant {
   id: string;
@@ -77,6 +77,13 @@ export interface EqPreset {
   gains: number[]; // 5 band gains in dB (-12 to +12)
 }
 
+export interface ArLightingPreset {
+  id: string;
+  name: string;
+  ambientHex: string;
+  shadowIntensity: number;
+}
+
 export type CurrencyCode = 'USD' | 'EUR' | 'GBP' | 'JPY';
 
 export interface CurrencyConfig {
@@ -107,6 +114,7 @@ export interface ProductData {
   socialPurchases: SocialProofPurchase[];
   audioTracks: AudioDemoTrack[];
   eqPresets: EqPreset[];
+  arLightingPresets: ArLightingPreset[];
 }
 
 /**
@@ -196,6 +204,11 @@ export function getProductData(): ProductData {
       { id: 'eq-vocal', name: 'Vocal & Acoustic Clarity', description: 'Midrange boost at 1kHz-3kHz for crisp podcasts & vocals.', gains: [-2, 1, 6, 4, 1] },
       { id: 'eq-game', name: 'FPS Gaming Spatial', description: 'High-frequency treble boost for footstep audio cues.', gains: [4, -2, 0, 6, 8] }
     ],
+    arLightingPresets: [
+      { id: 'ar-neon', name: 'Cyber Neon Studio', ambientHex: '#00f6ff', shadowIntensity: 0.8 },
+      { id: 'ar-daylight', name: 'Studio Daylight', ambientHex: '#f8fafc', shadowIntensity: 0.4 },
+      { id: 'ar-dark', name: 'Darkroom Ambient', ambientHex: '#8b5cf6', shadowIntensity: 0.9 }
+    ],
     features: [
       '⚡ Qwik Instant Load Resumable State Architecture (0ms Hydration Delay)',
       '🎧 50mm Custom Planar Magnetic Drivers with Sub-Bass Boost',
@@ -244,6 +257,23 @@ export function getProductData(): ProductData {
         verified: true
       }
     ]
+  };
+}
+
+/**
+ * Returns AR metadata for WebXR & AR Quick Look previewing.
+ */
+export function getArMetadata(variantId: string): {
+  usdzUrl: string;
+  glbUrl: string;
+  scaleRatio: string;
+  arQrCodeUrl: string;
+} {
+  return {
+    usdzUrl: `https://nexus-cyber.com/ar/${variantId}.usdz`,
+    glbUrl: `https://nexus-cyber.com/ar/${variantId}.glb`,
+    scaleRatio: '1:1 Real Scale (285g / 185mm x 165mm)',
+    arQrCodeUrl: `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=https://qwik-ecommerce-product-page-build49.vercel.app/%23ar-${variantId}`
   };
 }
 
@@ -459,15 +489,15 @@ export function filterReviews(reviews: ProductReview[], minRating = 0): ProductR
 /**
  * Generates serialized resumable state metadata snapshot.
  */
-export function getResumableSnapshot(cartItems: CartItem[], selectedVariantId: string, ledColor = 'led-cyan', rotationAngle = 0, flashSaleSeconds = 14400, activeAudioTrack = 'tr-bass', currency: CurrencyCode = 'USD', isCompareOpen = false, eqPreset = 'eq-flat'): {
+export function getResumableSnapshot(cartItems: CartItem[], selectedVariantId: string, ledColor = 'led-cyan', rotationAngle = 0, flashSaleSeconds = 14400, activeAudioTrack = 'tr-bass', currency: CurrencyCode = 'USD', isCompareOpen = false, eqPreset = 'eq-flat', isArOpen = false): {
   serializedObjectsCount: number;
   resumabilityKey: string;
   hydrationCostMs: number;
   payloadSizeBytes: number;
 } {
-  const payload = JSON.stringify({ cartItems, selectedVariantId, ledColor, rotationAngle, flashSaleSeconds, activeAudioTrack, currency, isCompareOpen, eqPreset });
+  const payload = JSON.stringify({ cartItems, selectedVariantId, ledColor, rotationAngle, flashSaleSeconds, activeAudioTrack, currency, isCompareOpen, eqPreset, isArOpen });
   return {
-    serializedObjectsCount: cartItems.length + 8,
+    serializedObjectsCount: cartItems.length + 9,
     resumabilityKey: `qwik:store:${Date.now().toString(36)}`,
     hydrationCostMs: 0.0, // Qwik zero hydration delay
     payloadSizeBytes: new Blob([payload]).size

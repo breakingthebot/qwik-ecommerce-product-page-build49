@@ -11,6 +11,7 @@ import {
   calculateFrequencyBars,
   calculateEqCurve,
   getComparisonModels,
+  getArMetadata,
   CURRENCIES,
   type CurrencyCode,
   type CartItem
@@ -25,10 +26,12 @@ export default component$(() => {
   const selectedLedId = useSignal(product.ledPresets[0].id);
   const selectedAudioTrackId = useSignal(product.audioTracks[0].id);
   const selectedEqPresetId = useSignal(product.eqPresets[0].id);
+  const selectedArLightingId = useSignal(product.arLightingPresets[0].id);
   const eqGains = useStore<number[]>([0, 0, 0, 0, 0]);
 
   const selectedCurrency = useSignal<CurrencyCode>('USD');
   const isCompareOpen = useSignal<boolean>(false);
+  const isArOpen = useSignal<boolean>(false);
   const isAudioPlaying = useSignal<boolean>(false);
   const audioTimeOffset = useSignal<number>(0);
 
@@ -119,6 +122,8 @@ export default component$(() => {
   const selectedLed = product.ledPresets.find(l => l.id === selectedLedId.value) || product.ledPresets[0];
   const selectedAudio = product.audioTracks.find(a => a.id === selectedAudioTrackId.value) || product.audioTracks[0];
   const selectedEqPreset = product.eqPresets.find(e => e.id === selectedEqPresetId.value) || product.eqPresets[0];
+  const selectedArLighting = product.arLightingPresets.find(a => a.id === selectedArLightingId.value) || product.arLightingPresets[0];
+  const arMeta = getArMetadata(selectedVariant.id);
   const frequencyBars = calculateFrequencyBars(selectedAudio.waveformPeaks, isAudioPlaying.value ? audioTimeOffset.value : 0);
   const eqCurveSvg = calculateEqCurve(eqGains, 600, 100);
   const countdown = calculateFlashSaleCountdown(flashSaleSeconds.value);
@@ -197,7 +202,7 @@ export default component$(() => {
 
   const totals = calculateCartTotals(cartStore.items, appliedPromo.value, selectedCurrency.value);
   const filteredReviews = filterReviews(product.reviews, ratingFilter.value);
-  const snapshot = getResumableSnapshot(cartStore.items, selectedVariantId.value, selectedLedId.value, rotationAngle.value, flashSaleSeconds.value, selectedAudioTrackId.value, selectedCurrency.value, isCompareOpen.value, selectedEqPresetId.value);
+  const snapshot = getResumableSnapshot(cartStore.items, selectedVariantId.value, selectedLedId.value, rotationAngle.value, flashSaleSeconds.value, selectedAudioTrackId.value, selectedCurrency.value, isCompareOpen.value, selectedEqPresetId.value, isArOpen.value);
   const totalCartCount = cartStore.items.reduce((acc, item) => acc + item.quantity, 0);
 
   return (
@@ -215,10 +220,19 @@ export default component$(() => {
       <header class="navbar">
         <a href="#" class="brand-logo">
           ⚡ NEXUS<span style="color: var(--accent-cyan);">CYBER</span>
-          <span class="brand-badge">Qwik Equalizer Engine</span>
+          <span class="brand-badge">Qwik Resumable Engine v0.8.0</span>
         </a>
 
         <div class="nav-actions" style="display: flex; gap: 12px; align-items: center;">
+          <button
+            type="button"
+            class="variant-btn"
+            style="padding: 8px 14px; font-size: 13px; border-color: var(--accent-cyan);"
+            onClick$={$(() => isArOpen.value = true)}
+          >
+            🥽 View in AR / 3D
+          </button>
+
           <button
             type="button"
             class="variant-btn"
@@ -257,11 +271,7 @@ export default component$(() => {
         <div class="product-gallery">
           <div
             class="main-image-frame"
-            style={{
-              boxShadow: selectedLed.glowShadow,
-              cursor: isDragging.value ? 'grabbing' : 'grab',
-              userSelect: 'none'
-            }}
+            style={`box-shadow: ${selectedLed.glowShadow}; cursor: ${isDragging.value ? 'grabbing' : 'grab'}; user-select: none;`}
             onMouseDown$={handleMouseDown$}
             onMouseMove$={handleMouseMove$}
             onMouseUp$={handleMouseUp$}
@@ -273,10 +283,7 @@ export default component$(() => {
               width="800"
               height="600"
               loading="eager"
-              style={{
-                transform: `rotateY(${rotationAngle.value}deg)`,
-                transition: isDragging.value ? 'none' : 'transform 0.1s ease'
-              }}
+              style={`transform: rotateY(${rotationAngle.value}deg); transition: ${isDragging.value ? 'none' : 'transform 0.1s ease'};`}
             />
             {selectedVariant.badge && (
               <span class="image-badge-tag">🔥 {selectedVariant.badge}</span>
@@ -290,30 +297,35 @@ export default component$(() => {
 
             {/* LED Accent Glow Canvas Overlay */}
             <div
-              style={{
-                position: 'absolute',
-                inset: 0,
-                pointerEvents: 'none',
-                background: `radial-gradient(circle at 50% 50%, ${selectedLed.hex}25 0%, transparent 70%)`
-              }}
+              style={`position: absolute; inset: 0; pointer-events: none; background: radial-gradient(circle at 50% 50%, ${selectedLed.hex}25 0%, transparent 70%);`}
             ></div>
           </div>
 
           <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 10px 16px;">
             <span style="font-size: 13px; color: var(--text-muted);">👉 Drag horizontally to rotate 360°</span>
-            <button
-              type="button"
-              class={`variant-btn ${isAutoSpinning.value ? 'active' : ''}`}
-              style="padding: 4px 12px; font-size: 12px;"
-              onClick$={$(() => {
-                isAutoSpinning.value = !isAutoSpinning.value;
-                if (isAutoSpinning.value) {
-                  rotationAngle.value = (rotationAngle.value + 45) % 360;
-                }
-              })}
-            >
-              ↺ {isAutoSpinning.value ? 'Auto-Spin Active' : 'Spin 45°'}
-            </button>
+            <div style="display: flex; gap: 8px;">
+              <button
+                type="button"
+                class="variant-btn"
+                style="padding: 4px 12px; font-size: 12px; border-color: var(--accent-cyan);"
+                onClick$={$(() => isArOpen.value = true)}
+              >
+                🥽 Launch AR
+              </button>
+              <button
+                type="button"
+                class={`variant-btn ${isAutoSpinning.value ? 'active' : ''}`}
+                style="padding: 4px 12px; font-size: 12px;"
+                onClick$={$(() => {
+                  isAutoSpinning.value = !isAutoSpinning.value;
+                  if (isAutoSpinning.value) {
+                    rotationAngle.value = (rotationAngle.value + 45) % 360;
+                  }
+                })}
+              >
+                ↺ {isAutoSpinning.value ? 'Auto-Spin Active' : 'Spin 45°'}
+              </button>
+            </div>
           </div>
         </div>
 
@@ -342,12 +354,7 @@ export default component$(() => {
           {/* Live Inventory Bar */}
           <div style="background: rgba(255,255,255,0.05); border-radius: 6px; height: 8px; overflow: hidden; margin-top: -10px;">
             <div
-              style={{
-                width: `${(selectedVariant.stock / 25) * 100}%`,
-                height: '100%',
-                background: 'linear-gradient(90deg, #ff007f, #f59e0b)',
-                transition: 'width 0.4s ease'
-              }}
+              style={`width: ${(selectedVariant.stock / 25) * 100}%; height: 100%; background: linear-gradient(90deg, #ff007f, #f59e0b); transition: width 0.4s ease;`}
             ></div>
           </div>
 
@@ -362,7 +369,7 @@ export default component$(() => {
                   class={`variant-btn ${v.id === selectedVariantId.value ? 'active' : ''}`}
                   onClick$={$(() => selectedVariantId.value = v.id)}
                 >
-                  <span class="color-dot" style={{ backgroundColor: v.colorHex }}></span>
+                  <span class="color-dot" style={`background-color: ${v.colorHex};`}></span>
                   {v.name}
                 </button>
               ))}
@@ -371,20 +378,17 @@ export default component$(() => {
 
           {/* LED Accent Light Customizer */}
           <div class="variant-section">
-            <span class="variant-label">Custom LED Accent Light: <strong style={{ color: selectedLed.hex }}>{selectedLed.name}</strong></span>
+            <span class="variant-label">Custom LED Accent Light: <strong style={`color: ${selectedLed.hex};`}>{selectedLed.name}</strong></span>
             <div class="variant-options" style="flex-wrap: wrap;">
               {product.ledPresets.map((led) => (
                 <button
                   key={led.id}
                   type="button"
                   class={`variant-btn ${led.id === selectedLedId.value ? 'active' : ''}`}
-                  style={{
-                    borderColor: led.id === selectedLedId.value ? led.hex : 'rgba(255,255,255,0.1)',
-                    boxShadow: led.id === selectedLedId.value ? led.glowShadow : 'none'
-                  }}
+                  style={`border-color: ${led.id === selectedLedId.value ? led.hex : 'rgba(255,255,255,0.1)'}; box-shadow: ${led.id === selectedLedId.value ? led.glowShadow : 'none'};`}
                   onClick$={$(() => selectedLedId.value = led.id)}
                 >
-                  <span class="color-dot" style={{ backgroundColor: led.hex, boxShadow: `0 0 8px ${led.hex}` }}></span>
+                  <span class="color-dot" style={`background-color: ${led.hex}; box-shadow: 0 0 8px ${led.hex};`}></span>
                   {led.name}
                 </button>
               ))}
@@ -461,7 +465,7 @@ export default component$(() => {
           {['60Hz', '250Hz', '1kHz', '4kHz', '12kHz'].map((label, idx) => (
             <div key={label} style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 12px; text-align: center;">
               <span style="font-size: 12px; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 6px;">{label}</span>
-              <div style="font-size: 16px; font-weight: 800; color: eqGains[idx] > 0 ? '#10b981' : eqGains[idx] < 0 ? '#ef4444' : '#fff'; margin-bottom: 8px;">
+              <div style={`font-size: 16px; font-weight: 800; color: ${eqGains[idx] > 0 ? '#10b981' : eqGains[idx] < 0 ? '#ef4444' : '#fff'}; margin-bottom: 8px;`}>
                 {eqGains[idx] > 0 ? `+${eqGains[idx]}` : eqGains[idx]} dB
               </div>
               <input
@@ -524,15 +528,7 @@ export default component$(() => {
             {frequencyBars.map((height, idx) => (
               <div
                 key={idx}
-                style={{
-                  flex: 1,
-                  height: `${height}%`,
-                  background: isAudioPlaying.value
-                    ? `linear-gradient(to top, var(--accent-cyan), var(--accent-magenta))`
-                    : 'rgba(255, 255, 255, 0.15)',
-                  borderRadius: '4px 4px 0 0',
-                  transition: 'height 0.1s ease'
-                }}
+                style={`flex: 1; height: ${height}%; background: ${isAudioPlaying.value ? 'linear-gradient(to top, var(--accent-cyan), var(--accent-magenta))' : 'rgba(255, 255, 255, 0.15)'}; border-radius: 4px 4px 0 0; transition: height 0.1s ease;`}
               ></div>
             ))}
           </div>
@@ -571,7 +567,7 @@ export default component$(() => {
         <div class="resumability-header">
           <div>
             <h2 style="font-size: 18px; font-weight: 800; color: var(--accent-cyan);">
-              ⚡ Qwik Resumable State Engine Audit (Hardware DSP EQ Engine)
+              ⚡ Qwik Resumable State Engine Audit (WebXR AR & Hardware DSP EQ Engine)
             </h2>
             <p style="font-size: 13px; color: var(--text-muted); margin-top: 4px;">
               Zero Hydration Delay — HTML contains pre-serialized application state without downloading JS hydration bundles!
@@ -596,8 +592,10 @@ export default component$(() => {
             <div style="font-size: 11px; color: var(--text-muted);">Resumable JSON Payload</div>
           </div>
           <div style="background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; padding: 10px;">
-            <div style="font-size: 18px; font-weight: 700; color: var(--accent-magenta);">{selectedEqPreset.name.split(' ')[0]}</div>
-            <div style="font-size: 11px; color: var(--text-muted);">Active Hardware DSP EQ Store</div>
+            <div style={`font-size: 18px; font-weight: 700; color: ${isArOpen.value ? '#10b981' : 'var(--accent-magenta)'};`}>
+              {isArOpen.value ? 'AR ACTIVE' : selectedEqPreset.name.split(' ')[0]}
+            </div>
+            <div style="font-size: 11px; color: var(--text-muted);">AR / Hardware DSP EQ Store</div>
           </div>
         </div>
       </section>
@@ -679,6 +677,88 @@ export default component$(() => {
         )}
       </section>
 
+      {/* AR Spatial Model Viewer Modal Overlay */}
+      {isArOpen.value && (
+        <div style="position: fixed; inset: 0; z-index: 350; background: rgba(0,0,0,0.9); backdrop-filter: blur(16px); display: flex; align-items: center; justify-content: center; padding: 20px;">
+          <div style="background: var(--bg-dark); border: 1px solid var(--accent-cyan); border-radius: var(--radius-lg); width: 100%; max-width: 900px; max-height: 90vh; overflow-y: auto; padding: 28px; box-shadow: 0 0 50px rgba(0, 246, 255, 0.35);">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 16px; margin-bottom: 20px;">
+              <div>
+                <h2 style="font-size: 22px; font-weight: 800; color: #fff; display: flex; align-items: center; gap: 10px;">
+                  🥽 WebXR Augmented Reality (AR) Spatial Viewer
+                </h2>
+                <p style="font-size: 13px; color: var(--text-muted); margin-top: 4px;">
+                  Project 1:1 true-scale model in your physical room or preview 3D environment lighting.
+                </p>
+              </div>
+              <button
+                type="button"
+                style="background: transparent; border: none; color: var(--text-muted); font-size: 24px; cursor: pointer;"
+                onClick$={$(() => isArOpen.value = false)}
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* AR Viewport Frame */}
+            <div style={`position: relative; background: radial-gradient(circle at 50% 50%, ${selectedArLighting.ambientHex}30 0%, #070913 80%); border: 1px solid rgba(255,255,255,0.15); border-radius: 16px; aspect-ratio: 16/9; display: flex; align-items: center; justify-content: center; overflow: hidden; margin-bottom: 20px;`}>
+              <img
+                src={selectedVariant.image}
+                alt={selectedVariant.name}
+                style={`width: 60%; height: 60%; object-fit: contain; filter: drop-shadow(0 20px 30px rgba(0,0,0,${selectedArLighting.shadowIntensity})); transform: rotateY(${rotationAngle.value}deg);`}
+              />
+              <span class="image-badge-tag" style="top: 16px; left: 16px;">
+                📐 {arMeta.scaleRatio}
+              </span>
+              <span class="image-badge-tag" style="top: 16px; left: auto; right: 16px; background: rgba(16, 185, 129, 0.2); border-color: #10b981; color: #10b981;">
+                ● WebXR Tracking Active
+              </span>
+            </div>
+
+            {/* Controls & QR Code Row */}
+            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 20px; align-items: center;">
+              <div>
+                <span style="font-size: 13px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; display: block; margin-bottom: 8px;">Studio Environment Lighting:</span>
+                <div style="display: flex; gap: 10px; margin-bottom: 16px;">
+                  {product.arLightingPresets.map((lp) => (
+                    <button
+                      key={lp.id}
+                      type="button"
+                      class={`variant-btn ${lp.id === selectedArLightingId.value ? 'active' : ''}`}
+                      onClick$={$(() => selectedArLightingId.value = lp.id)}
+                    >
+                      <span class="color-dot" style={`background-color: ${lp.ambientHex};`}></span>
+                      {lp.name}
+                    </button>
+                  ))}
+                </div>
+
+                <div style="font-size: 13px; color: var(--text-muted); display: flex; gap: 16px;">
+                  <span>📦 GLB Model: <a href={arMeta.glbUrl} target="_blank" style="color: var(--accent-cyan); font-weight: 700;">Download .GLB</a></span>
+                  <span>🍏 USDZ Model: <a href={arMeta.usdzUrl} target="_blank" style="color: var(--accent-magenta); font-weight: 700;">Download .USDZ</a></span>
+                </div>
+              </div>
+
+              {/* Mobile Scan QR Code */}
+              <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 12px; text-align: center;">
+                <img src={arMeta.arQrCodeUrl} alt="AR QR Code" width="120" height="120" style="border-radius: 8px; margin: 0 auto; display: block;" />
+                <span style="font-size: 11px; color: var(--text-muted); margin-top: 6px; display: block;">Scan with Mobile Camera for iOS / Android AR</span>
+              </div>
+            </div>
+
+            <div style="text-align: right; margin-top: 20px;">
+              <button
+                type="button"
+                class="btn-primary"
+                style="padding: 10px 20px; font-size: 14px;"
+                onClick$={$(() => isArOpen.value = false)}
+              >
+                Close AR Viewport
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Comparison Matrix Modal Overlay Drawer */}
       {isCompareOpen.value && (
         <div style="position: fixed; inset: 0; z-index: 300; background: rgba(0,0,0,0.85); backdrop-filter: blur(12px); display: flex; align-items: center; justify-content: center; padding: 20px;">
@@ -710,12 +790,7 @@ export default component$(() => {
                     {comparisonModels.map((m) => (
                       <th
                         key={m.id}
-                        style={{
-                          padding: '12px',
-                          color: m.isCurrentProduct ? 'var(--accent-cyan)' : '#fff',
-                          background: m.isCurrentProduct ? 'rgba(0, 246, 255, 0.08)' : 'transparent',
-                          borderRadius: '8px 8px 0 0'
-                        }}
+                        style={`padding: 12px; color: ${m.isCurrentProduct ? 'var(--accent-cyan)' : '#fff'}; background: ${m.isCurrentProduct ? 'rgba(0, 246, 255, 0.08)' : 'transparent'}; border-radius: 8px 8px 0 0;`}
                       >
                         <div style="font-size: 16px; font-weight: 800;">{m.name}</div>
                         <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">{m.tagline}</div>
@@ -730,37 +805,37 @@ export default component$(() => {
                   <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
                     <td style="padding: 12px; font-weight: 700; color: var(--text-muted);">Driver Type</td>
                     {comparisonModels.map((m) => (
-                      <td key={m.id} style={{ padding: '12px', background: m.isCurrentProduct ? 'rgba(0, 246, 255, 0.08)' : 'transparent' }}>{m.driver}</td>
+                      <td key={m.id} style={`padding: 12px; background: ${m.isCurrentProduct ? 'rgba(0, 246, 255, 0.08)' : 'transparent'};`}>{m.driver}</td>
                     ))}
                   </tr>
                   <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
                     <td style="padding: 12px; font-weight: 700; color: var(--text-muted);">Frequency Response</td>
                     {comparisonModels.map((m) => (
-                      <td key={m.id} style={{ padding: '12px', background: m.isCurrentProduct ? 'rgba(0, 246, 255, 0.08)' : 'transparent' }}>{m.frequency}</td>
+                      <td key={m.id} style={`padding: 12px; background: ${m.isCurrentProduct ? 'rgba(0, 246, 255, 0.08)' : 'transparent'};`}>{m.frequency}</td>
                     ))}
                   </tr>
                   <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
                     <td style="padding: 12px; font-weight: 700; color: var(--text-muted);">Noise Cancellation</td>
                     {comparisonModels.map((m) => (
-                      <td key={m.id} style={{ padding: '12px', background: m.isCurrentProduct ? 'rgba(0, 246, 255, 0.08)' : 'transparent' }}>{m.ancLevel}</td>
+                      <td key={m.id} style={`padding: 12px; background: ${m.isCurrentProduct ? 'rgba(0, 246, 255, 0.08)' : 'transparent'};`}>{m.ancLevel}</td>
                     ))}
                   </tr>
                   <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
                     <td style="padding: 12px; font-weight: 700; color: var(--text-muted);">Battery Life</td>
                     {comparisonModels.map((m) => (
-                      <td key={m.id} style={{ padding: '12px', background: m.isCurrentProduct ? 'rgba(0, 246, 255, 0.08)' : 'transparent' }}>{m.battery}</td>
+                      <td key={m.id} style={`padding: 12px; background: ${m.isCurrentProduct ? 'rgba(0, 246, 255, 0.08)' : 'transparent'};`}>{m.battery}</td>
                     ))}
                   </tr>
                   <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
                     <td style="padding: 12px; font-weight: 700; color: var(--text-muted);">Weight</td>
                     {comparisonModels.map((m) => (
-                      <td key={m.id} style={{ padding: '12px', background: m.isCurrentProduct ? 'rgba(0, 246, 255, 0.08)' : 'transparent' }}>{m.weight}</td>
+                      <td key={m.id} style={`padding: 12px; background: ${m.isCurrentProduct ? 'rgba(0, 246, 255, 0.08)' : 'transparent'};`}>{m.weight}</td>
                     ))}
                   </tr>
                   <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
                     <td style="padding: 12px; font-weight: 700; color: var(--text-muted);">Wireless Latency</td>
                     {comparisonModels.map((m) => (
-                      <td key={m.id} style={{ padding: '12px', background: m.isCurrentProduct ? 'rgba(0, 246, 255, 0.08)' : 'transparent' }}>{m.latency}</td>
+                      <td key={m.id} style={`padding: 12px; background: ${m.isCurrentProduct ? 'rgba(0, 246, 255, 0.08)' : 'transparent'};`}>{m.latency}</td>
                     ))}
                   </tr>
                 </tbody>
@@ -875,11 +950,11 @@ export default component$(() => {
 });
 
 export const head: DocumentHead = {
-  title: 'Nexus Apex Pro Wireless ANC Headphones | Qwik Equalizer Engine',
+  title: 'Nexus Apex Pro Wireless ANC Headphones | Qwik AR Spatial Engine',
   meta: [
     {
       name: 'description',
-      content: 'Instant load, resumable state Qwik E-commerce product page with interactive 5-band sound profile equalizer and response curve generator.'
+      content: 'Instant load, resumable state Qwik E-commerce product page with WebXR Augmented Reality (AR) spatial model viewer.'
     }
   ]
 };

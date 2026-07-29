@@ -1,6 +1,6 @@
 // src/services/productService.spec.ts
 // Vitest unit tests for Build 49 Product Service.
-// Updated: 2026-07-29 for Iteration 7
+// Updated: 2026-07-29 for Iteration 8
 
 import { describe, it, expect } from 'vitest';
 import {
@@ -14,11 +14,12 @@ import {
   calculateFrequencyBars,
   convertCurrency,
   getComparisonModels,
-  calculateEqCurve
+  calculateEqCurve,
+  getArMetadata
 } from './productService';
 
 describe('productService', () => {
-  it('retrieves valid product catalog data with variants, specs, social purchases, audio tracks, and eq presets', () => {
+  it('retrieves valid product catalog data with variants, specs, social purchases, audio tracks, eq presets, and ar lighting presets', () => {
     const data = getProductData();
     expect(data.id).toBe('apex-pro-cyber-v1');
     expect(data.variants.length).toBe(3);
@@ -28,6 +29,15 @@ describe('productService', () => {
     expect(data.socialPurchases.length).toBe(4);
     expect(data.audioTracks.length).toBe(3);
     expect(data.eqPresets.length).toBe(4);
+    expect(data.arLightingPresets.length).toBe(3);
+  });
+
+  it('retrieves AR metadata for WebXR and USDZ/GLB model previewing', () => {
+    const arMeta = getArMetadata('var-cyber-black');
+    expect(arMeta.usdzUrl).toContain('var-cyber-black.usdz');
+    expect(arMeta.glbUrl).toContain('var-cyber-black.glb');
+    expect(arMeta.scaleRatio).toContain('1:1 Real Scale');
+    expect(arMeta.arQrCodeUrl).toContain('qrserver.com');
   });
 
   it('calculates SVG path curve coordinates for Equalizer response curves', () => {
@@ -125,14 +135,14 @@ describe('productService', () => {
     expect(fiveStars.every(r => r.rating >= 5)).toBe(true);
   });
 
-  it('generates serialized resumable state snapshot with 0ms hydration cost and EQ state', () => {
+  it('generates serialized resumable state snapshot with 0ms hydration cost and AR state', () => {
     const items = [
       { variantId: 'var-cyber-black', name: 'Cyber Onyx', price: 349.99, image: '', quantity: 1 }
     ];
-    const snapshot = getResumableSnapshot(items, 'var-cyber-black', 'led-magenta', 180, 14400, 'tr-bass', 'EUR', true, 'eq-bass');
+    const snapshot = getResumableSnapshot(items, 'var-cyber-black', 'led-magenta', 180, 14400, 'tr-bass', 'EUR', true, 'eq-bass', true);
 
     expect(snapshot.hydrationCostMs).toBe(0.0);
-    expect(snapshot.serializedObjectsCount).toBe(9);
+    expect(snapshot.serializedObjectsCount).toBe(10);
     expect(snapshot.payloadSizeBytes).toBeGreaterThan(0);
   });
 });
