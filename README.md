@@ -2,8 +2,8 @@
 
 [![Vercel Deployment](https://img.shields.io/badge/Vercel-Live%20Demo-000000?style=for-the-badge&logo=vercel)](https://qwik-ecommerce-product-page-build49.vercel.app)
 [![GitHub Repository](https://img.shields.io/badge/GitHub-Repository-181717?style=for-the-badge&logo=github)](https://github.com/breakingthebot/qwik-ecommerce-product-page-build49)
-[![Tests](https://img.shields.io/badge/Vitest-13%20Passed-6E9F18?style=for-the-badge&logo=vitest)](file:///C:/Users/marve/Desktop/AI-286-Builds/Build_49/src/services/productService.spec.ts)
-[![Version](https://img.shields.io/badge/Release-v0.9.0-blue?style=for-the-badge)](file:///C:/Users/marve/Desktop/AI-286-Builds/Build_49/CHANGELOG.md)
+[![Tests](https://img.shields.io/badge/Vitest-13%20Passed-6E9F18?style=for-the-badge&logo=vitest)](https://github.com/breakingthebot/qwik-ecommerce-product-page-build49/blob/main/src/services/productService.spec.ts)
+[![Version](https://img.shields.io/badge/Release-v0.9.0-blue?style=for-the-badge)](https://github.com/breakingthebot/qwik-ecommerce-product-page-build49/blob/main/CHANGELOG.md)
 
 ---
 
